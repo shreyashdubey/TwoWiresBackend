@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const publicRoutes = ['/api/users/login']
+const publicRoutes = ['/api/users/login','/api/users/signup']
 require("dotenv").config();
 
 function validateToken(req, res, next) {
@@ -8,6 +8,7 @@ function validateToken(req, res, next) {
        next();
     }
     else{
+        console.log(req.url)
         const authHeader = req.headers["authorization"]
     const token = authHeader?.split(" ")[1]  
     if (!Boolean(req.headers["authorization"])) {
