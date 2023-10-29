@@ -25,8 +25,8 @@ router.post('/create', async (req, res) => {
 
      // Check if the sender is a valid option
      if (!Object.values(SenderOptions).includes(sender.trim())) {
-      return res.status(400).json({ error: 'Invalid sender option.' });
-    }
+        return res.status(400).json({ error: 'Invalid sender option.' });
+     }
 
       let path;
       if (parentQueryId) {
