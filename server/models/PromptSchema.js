@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const promptSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   problem: { type: mongoose.Schema.Types.ObjectId, ref: 'ProblemSchema', required: true },
-  queryId: { type: mongoose.Schema.Types.ObjectId, ref: 'InputOutputSchema', required: true },
+  queryId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProblemSolverQuerySchema', required: true },
   prompts: { type: [String], required: true },
   createdAt: { type: Date, default: Date.now },
 });

@@ -125,12 +125,45 @@ router.put('/comments/delete/:commentID', async(req, res) => {
 });
 
 // Retrieving comment on a Post in a tree structure, look for the sort('path') function used, TODO- also give logic for UI 
-router.get('/comments/:postId', async (req, res) => {
+router.get('/get/:postId', async (req, res) => {
   const postId = req.params.postId;
-
   try {
-    const comments = await Comment.find({ post: postId }).sort('path');
-    res.json(comments);
+  const { user, page, pageSize } = req.body;
+    const userExists = await User.findById(user);
+    if (!userExists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const postExists = await Post.findById(postId);
+    if (!postExists) {
+      return res.status(404).json({ error: 'Post not found.' });
+    }
+
+    const pageOptions = {
+      page: parseInt(page, 10) || 1,  // Current page (default to 1)
+      pageSize: parseInt(pageSize, 10) || 10, // Number of items per page (default to 10)
+    };
+
+    const skip = (pageOptions.page - 1) * pageOptions.pageSize;
+
+
+    const comments = await Comment.find({ post: postId })
+    .sort('path')
+    .skip(skip)
+    .limit(pageOptions.pageSize);
+
+    const totalComments = await Comment.countDocuments({ user: user});
+
+    const totalPages = Math.ceil(totalComments / pageOptions.pageSize);
+    
+    res.status(200).json({
+      comments,
+      page: pageOptions.page,
+      pageSize: pageOptions.pageSize,
+      totalPages,
+      totalComments,
+    });
+
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch comments.' });
   }

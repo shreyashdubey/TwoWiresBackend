@@ -70,7 +70,7 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' })); // <- Parses UR
   app.use('/api/v1/', router); // <- Calling the router
  
   app.use('/api/posts', postRoutes);
-  app.use('/api/postComments',postCommentRoutes);
+  app.use('/api/comments',postCommentRoutes);
   app.use('/api/connect' ,FriendRequest );
   
   app.use('/api/problems',problemRoutes);
