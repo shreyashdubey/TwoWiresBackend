@@ -73,7 +73,7 @@ router.post(
     try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log("some error")
+      console.log("validationResult Error")
       return res.status(400).json({ errors: errors.array() });
     }
     const { email, password } = req.body;
@@ -94,8 +94,6 @@ router.post(
       const accessToken = generateAccessToken ({user: user})
       const refreshToken = generateRefreshToken ({user: user})
       res.json ({accessToken: accessToken, refreshToken: refreshToken})
-
-
 
       // const token = createSecretToken(user._id);
       // res.cookie("token", token, {
@@ -147,24 +145,23 @@ router.get('/search', async (req, res) => {
 });
 
 
-  router.get('/:userId', async (req, res) => {
-    const userId = req.params.userId;
-    console.log("hua call")
-    try {
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      res.json({ user });
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-      res.status(500).json({ error: 'Failed to fetch user profile' });
+router.get('/:userId', async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
-  });
+    res.json({ user });
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ error: 'Failed to fetch user profile' });
+  }
+});
   
   // accessTokens
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: "99m"}) 
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: "70m"}) 
 }
 
 // refreshTokens
@@ -172,7 +169,7 @@ let refreshTokens = []
 
 function generateRefreshToken(user) {
   const refreshToken = 
-  jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "100m"})
+  jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "90m"})
   refreshTokens.push(refreshToken)
   return refreshToken
 }
