@@ -161,7 +161,7 @@ router.get('/:userId', async (req, res) => {
   
   // accessTokens
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: "70m"}) 
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: "700m"}) 
 }
 
 // refreshTokens
@@ -169,7 +169,7 @@ let refreshTokens = []
 
 function generateRefreshToken(user) {
   const refreshToken = 
-  jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "90m"})
+  jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "900m"})
   refreshTokens.push(refreshToken)
   return refreshToken
 }

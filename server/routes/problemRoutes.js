@@ -5,7 +5,7 @@ const path = require('path');
 const mongoose = require('mongoose')
 const User = require('../models/UserSchema');
 const Problem = require('../models/ProblemSchema');
-
+const AiOptions = require('../enums/AiOptions');
 // Create a new post
 router.post('/create', async (req, res) => {
   try {
@@ -17,11 +17,11 @@ router.post('/create', async (req, res) => {
     if(problemName.length == 0){
         return res.status(404).json({ error: 'Problem name not given' });
     }
-
-    if(aiOption.length == 0){
-        return res.status(404).json({ error: 'AI option not selected'});
+    
+    // Check if the sender is a valid option
+    if (!Object.values(AiOptions).includes(aiOption.trim())) {
+      return res.status(400).json({ error: 'Invalid ai option.' });
     }
-
     const newProblem = new Problem({
       user,
       problemName,
@@ -37,9 +37,9 @@ router.post('/create', async (req, res) => {
 });
 
 // Updating the saved problem name.
-router.put('/update/:problemID', async (req, res) => {
+router.put('/update/:problemId', async (req, res) => {
   try {
-    const problemID = req.params.problemID;
+    const problemId = req.params.problemId;
     const { user, problemName} = req.body;
 
     const userExists = await User.findById(user);
@@ -48,7 +48,7 @@ router.put('/update/:problemID', async (req, res) => {
     }
 
     // Find the problem by ID
-    const problem = await Problem.findById(problemID);
+    const problem = await Problem.findById(problemId);
 
     if (!problem) {
       return res.status(404).json({ error: 'Problem not found' });

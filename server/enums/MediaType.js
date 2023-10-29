@@ -3,3 +3,4 @@ const MediaType = Object.freeze({
     GIF: 'GIF',
     VIDEO: 'VIDEO',
   })
+  module.exports = MediaType

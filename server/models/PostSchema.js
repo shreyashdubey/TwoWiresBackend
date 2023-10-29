@@ -5,8 +5,8 @@ const CommentControl = require('../enums/CommentControl')
 const postSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true,},
   payload: { type: String, required: true},
-  reachability: {type: String, enum: Object.values(ReachabilityOptions), default: "ANYONE", required: true},
-  commentControl: {type: String, enum: Object.values(CommentControl), default: "ANYONE" ,required: true},
+  reachability: {type: String, enum: ReachabilityOptions, default: "ANYONE", required: true},
+  commentControl: {type: String, enum: CommentControl, default: "ANYONE" ,required: true},
   mediaPayload: {type: String, required: true},
   reactionCount: {type: Number, default: 0, required: true},
   commentCount: {type: Number, default: 0, required: true},

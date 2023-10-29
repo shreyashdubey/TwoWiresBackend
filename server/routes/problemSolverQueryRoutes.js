@@ -5,9 +5,9 @@ const path = require('path');
 const mongoose = require('mongoose')
 const User = require('../models/UserSchema');
 const Problem = require('../models/ProblemSchema');
-const InputOutput = require('../models/InputOutputSchema');
+const ProblemSolverQuery = require('../models/ProblemSolverQuerySchema');
 const Prompt = require('../models/PromptSchema');
-
+const SenderOptions = require('../enums/SenderOptions');
 // Create a new AI query
 router.post('/create', async (req, res) => {
     const { user, problem, sender, text, parentQueryId } = req.body;
@@ -23,13 +23,14 @@ router.post('/create', async (req, res) => {
         return res.status(404).json({ error: 'Problem not found' });
       }
 
-     if(sender.length == 0){
-        return res.status(404).json({ error: 'AI option not selected'});
-      }
+     // Check if the sender is a valid option
+     if (!Object.values(SenderOptions).includes(sender.trim())) {
+      return res.status(400).json({ error: 'Invalid sender option.' });
+    }
 
       let path;
       if (parentQueryId) {
-        const parentQuery = await InputOutput.findById(parentQueryId);
+        const parentQuery = await ProblemSolverQuery.findById(parentQueryId);
         if (!parentQuery) {
           return res.status(404).json({ error: 'Parent query not found.' });
         }
@@ -38,7 +39,7 @@ router.post('/create', async (req, res) => {
         path = " ";
       }
 
-      const newQuery = new InputOutput({
+      const newQuery = new ProblemSolverQuery({
         user,
         problem,
         sender,
@@ -69,7 +70,7 @@ router.post('/create', async (req, res) => {
       }
 
       // Check if the comment exist and is not deleted
-      const queryExists = await InputOutput.findById(queryId);
+      const queryExists = await ProblemSolverQuery.findById(queryId);
       if (!queryExists) {
         return res.status(404).json({ error: 'query not found.' });
       }
@@ -90,10 +91,41 @@ router.post('/create', async (req, res) => {
   // Retrieving comment on a Post in a tree structure, look for the sort('path') function used, TODO- also give logic for UI 
   router.get('/all/:problemId', async (req, res) => {
     const problemId = req.params.problemId;
-  
+    const { user, page, pageSize} = req.body;
     try {
-      const queries = await InputOutput.find({ problem: problemId }).sort('path');
-      res.json(queries);
+    
+      const userExists = await User.findById(user);
+      if (!userExists) {
+        return res.status(404).json({ error: 'User not found.' }); // ye 404 chl nhi rha tha
+      }
+
+      const problem = await Problem.findById(problemId);
+      if (!problem) {
+        return res.status(404).json({ error: 'Problem not found' });
+      }
+      
+      const pageOptions = {
+        page: parseInt(page, 10) || 1,  // Current page (default to 1)
+        pageSize: parseInt(pageSize, 10) || 10, // Number of items per page (default to 10)
+      };
+      const skip = (pageOptions.page - 1) * pageOptions.pageSize;
+
+      const queries = await ProblemSolverQuery.find({ problem: problem })
+      .sort('path')
+      .skip(skip)
+      .limit(pageOptions.pageSize);
+
+      const totalQueries = await ProblemSolverQuery.countDocuments({ problem: problem});
+      
+      const totalPages = Math.ceil(totalQueries / pageOptions.pageSize);
+  
+      res.status(200).json({
+        queries,
+        page: pageOptions.page,
+        pageSize: pageOptions.pageSize,
+        totalPages,
+        totalQueries,
+      });
     } catch (err) {
       res.status(500).json({ error: 'Failed to fetch queries.' });
     }
@@ -105,12 +137,12 @@ router.post('/create', async (req, res) => {
     const queryId = req.params.queryId;
   
     try {
-      const parentQuery = await InputOutput.findById(queryId);
+      const parentQuery = await ProblemSolverQuery.findById(queryId);
       if (!parentQuery) {
         return res.status(404).json({ error: 'Parent query not found.' });
       }
   
-      const queries = await InputOutput.find({
+      const queries = await ProblemSolverQuery.find({
         path: { $regex: `^${parentQuery.path}/${queryId}` },
       });
   

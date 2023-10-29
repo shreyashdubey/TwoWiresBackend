@@ -6,3 +6,4 @@ const ReactionTypes = Object.freeze({
     CELEBRATE: 'CELEBRATE',
     SUPPORT: 'SUPPORT'
   })
+  module.exports = ReactionTypes;

@@ -5,7 +5,7 @@ const path = require('path');
 const mongoose = require('mongoose')
 const User = require('../models/UserSchema');
 const Problem = require('../models/ProblemSchema');
-const InputOutput = require('../models/InputOutputSchema');
+const ProblemSolverQuery = require('../models/ProblemSolverQuerySchema');
 const Prompt = require('../models/PromptSchema');
 // Create a new prompt list
 
@@ -23,7 +23,7 @@ router.post('/create', async (req, res) => {
         return res.status(404).json({ error: 'Problem not found' });
       }
 
-      const queryExists = await InputOutput.findById(queryId);
+      const queryExists = await ProblemSolverQuery.findById(queryId);
       if (!queryExists) {
         return res.status(404).json({ error: 'query not found.' });
       } 
