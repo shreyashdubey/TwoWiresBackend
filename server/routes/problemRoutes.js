@@ -17,7 +17,7 @@ router.post('/create', async (req, res) => {
     if(problemName.length == 0){
         return res.status(404).json({ error: 'Problem name not given' });
     }
-    
+
     // Check if the sender is a valid option
     if (!Object.values(AiOptions).includes(aiOption.trim())) {
       return res.status(400).json({ error: 'Invalid ai option.' });
@@ -30,7 +30,6 @@ router.post('/create', async (req, res) => {
 
     const savedProblem = await newProblem.save();
     res.status(201).json(savedProblem);
-    console.log("Post saved hurray!!")
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

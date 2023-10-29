@@ -6,6 +6,8 @@ const mongoose = require('mongoose')
 const Post = require('../models/PostSchema');
 const User = require('../models/UserSchema');
 const validateToken = require('../utils/validateToken');
+const ReachabilityOptions = require('../enums/ReachabilityOptions');
+const CommentControl = require('../enums/CommentControl')
 // Create a new post
 
 router.post('/create', async (req, res) => {
@@ -15,6 +17,15 @@ router.post('/create', async (req, res) => {
     if (!userExists) {
       return res.status(404).json({ error: 'User not found' });
     }
+    
+    if (!Object.values(ReachabilityOptions).includes(reachability.trim())) {
+      return res.status(400).json({ error: 'Invalid reachability option.'});
+    }
+
+    if (!Object.values(CommentControl).includes(commentControl.trim())) {
+      return res.status(400).json({ error: 'Invalid comment control option.'});
+    }
+    
     const newPost = new Post({
       user,
       payload,
@@ -28,7 +39,6 @@ router.post('/create', async (req, res) => {
 
     const savedPost = await newPost.save();
     res.status(201).json(savedPost);
-    console.log("Post saved hurray!!")
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -38,6 +48,26 @@ router.put('/update/:postId', async (req, res) => {
   try {
     const postId = req.params.postId;
     const updates = req.body;
+
+    // Additional checks for specific fields if they are present in updates
+    if (updates.user) {
+      const userExists = await User.findById(updates.user);
+      if (!userExists) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+    }
+
+    if (updates.reachability) {
+      if (!Object.values(ReachabilityOptions).includes(updates.reachability.trim())) {
+        return res.status(400).json({ error: 'Invalid reachability option.' });
+      }
+    }
+
+    if (updates.commentControl) {
+      if (!Object.values(CommentControl).includes(updates.commentControl.trim())) {
+        return res.status(400).json({ error: 'Invalid comment control option.' });
+      }
+    }
 
     // Find the post by ID
     const post = await Post.findById(postId);
@@ -66,8 +96,34 @@ router.put('/update/:postId', async (req, res) => {
 // Get all posts
 router.get('/all', async (req, res) => {
   try {
-    const posts = await Post.find();
-    res.status(200).json(posts);
+    const { user, page, pageSize } = req.body;
+    const userExists = await User.findById(user);
+    if (!userExists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const pageOptions = {
+      page: parseInt(page, 10) || 1,  // Current page (default to 1)
+      pageSize: parseInt(pageSize, 10) || 10, // Number of items per page (default to 10)
+    };
+
+    const skip = (pageOptions.page - 1) * pageOptions.pageSize;
+
+    const posts = await Post.find({user: user})
+    .skip(skip)
+    .limit(pageOptions.pageSize);
+
+    const totalPosts = await Post.countDocuments({ user: user});
+
+    const totalPages = Math.ceil(totalPosts / pageOptions.pageSize);
+
+    res.status(200).json({
+      posts,
+      page: pageOptions.page,
+      pageSize: pageOptions.pageSize,
+      totalPages,
+      totalPosts,
+    });
   } catch (err) { 
     res.status(500).json({ error: err.message });
   }
