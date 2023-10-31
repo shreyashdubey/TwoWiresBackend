@@ -22,11 +22,13 @@ router.post(
     check('username').notEmpty().withMessage('Username is required')
   ],
   async (req, res , next) => {
-    console.log("req",req)
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+    
+    // const errors = validationResult(req);
+    
+    // if (!errors.isEmpty()) {
+    //   return res.status(400).json({ errors: errors.array() });
+    // }
+    console.log("req for signup")
     const { email, password, username, profession, expertise , confirmPassword } = req.body;
 
     try {
@@ -44,14 +46,9 @@ router.post(
         expertise , 
         confirmPassword
       });
-
+      console.log("got user")
       await user.save();
-      const token = createSecretToken(user._id);
-       res.cookie("token", token, {
-       credentials: 'include',
-      httpOnly: false,
-      });
-      const tokenCookie = res.getHeader('Set-Cookie');
+      console.log("saved user")
      res
       .status(201)
       .json({ message: "User signed in successfully", success: true, user });
