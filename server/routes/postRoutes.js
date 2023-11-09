@@ -5,10 +5,31 @@ const path = require('path');
 const mongoose = require('mongoose')
 const Post = require('../models/PostSchema');
 const User = require('../models/UserSchema');
+const Notification = require('../models/NotificationSchema')
+const NotificationTypes = require('../enums/NotificationTypes');
 const validateToken = require('../utils/validateToken');
 const ReachabilityOptions = require('../enums/ReachabilityOptions');
 const CommentControl = require('../enums/CommentControl')
 // Create a new post
+
+// Function to create notifications for user's friends
+async function createNotificationsForFriends(userId, postId) {
+  const friends = await Friend.findOne({ user: userId }).populate('friends.friendUser');
+  const postNotificationType = NotificationTypes.POST;
+
+  const notificationPromises = friends.friends.map(async (friend) => {
+    const notification = new Notification({
+      user: friend.friendUser._id,
+      notificationType: postNotificationType,
+      sourceId: postId, // You can set the source ID to the ID of the newly created post
+      isRead: false, 
+    });
+    return notification.save();
+  });
+
+  await Promise.all(notificationPromises);
+}
+
 
 router.post('/create', async (req, res) => {
   try {
@@ -38,6 +59,10 @@ router.post('/create', async (req, res) => {
     });
 
     const savedPost = await newPost.save();
+
+    //Creating Notifications for all the friend of the user
+    await createNotificationsForFriends(user, savedPost._id);
+
     res.status(201).json(savedPost);
   } catch (err) {
     res.status(400).json({ error: err.message });

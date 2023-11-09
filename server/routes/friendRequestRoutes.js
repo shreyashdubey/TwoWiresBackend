@@ -3,20 +3,80 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/UserSchema');
 const FriendRequest = require('../models/FriendRequestSchema');
+const FriendRequestStatus = require('../enums/FriendRequestStatus');
 const Friend = require('../models/FriendSchema')
 const {verifyToken} = require('../utils/verifyToken')
+
+async function areUsersFriends(sender, receiver) {
+  const thirtyDaysAgo = new Date(); 
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const existingFriendship = await FriendRequest.findOne({
+    $or: [
+      { sender, receiver },
+      { sender: receiver, receiver: sender },
+    ],
+    $or: [
+      {status: FriendRequestStatus.ACCEPTED},
+      {status: FriendRequestStatus.PENDING},
+    ]
+  });
+
+  if(!existingFriendship){ //Checking for null
+    return FriendRequestStatus.NOT_FOUND;
+  }
+
+  if (existingFriendship) {
+    if (existingFriendship.status === FriendRequestStatus.ACCEPTED) {
+      return FriendRequestStatus.ACCEPTED;
+    } else if (existingFriendship.status === FriendRequestStatus.PENDING) {
+      return FriendRequestStatus.PENDING;
+    } else if (existingFriendship.status === FriendRequestStatus.DECLINED && existingFriendship.createdAt < thirtyDaysAgo) {
+      return FriendRequestStatus.NOT_FOUND;
+    }
+  }
+  return FriendRequestStatus.NOT_FOUND;
+}
+
+// Creation of new friend Request
+router.post('/create', async (req, res) => {
+  const { sender, receiver} = req.body;
+  try {
+    // Check if the user exists
+    const senderExists = await User.findById(sender);
+    if (!senderExists) {
+      return res.status(404).json({ error: 'Sender not found.' });
+    }
+
+    const receiverExists = await User.findById(receiver);
+    if (!receiverExists) {
+      return res.status(404).json({ error: 'Receiever not found.' });
+    }
+    const friendshipStatus = await areUsersFriends(sender, receiver);
+    console.log(friendshipStatus)
+    if(friendshipStatus != FriendRequestStatus.NOT_FOUND){
+      return res.status(404).json({ error: 'Friend Request already exist try later' });
+    }
+  
+    const newFriendRequest = new FriendRequest({
+      sender,
+      receiver,
+    });
+    console.log('createe')
+    const savedFriendRequest = await newFriendRequest.save();
+    console.log('saved')
+    res.status(201).json(savedFriendRequest);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to create a new friend request.' });
+  }
+});
+
 
 
 // Send a friend request
 router.post('/send', async (req, res) => {
     const {receiverId } = req.body;
-    const token = req.cookies.token
     try{
-    if (!token) {
-      return res.json({ status: false })
-    }
-    const decoded = await verifyToken(token);
-    const senderId = decoded.id
     // Check if the sender and receiver exist in the database
     const sender = await User.findById(senderId);
     const receiver = await User.findById(receiverId);
