@@ -8,14 +8,13 @@ const AppError = require('./utils/appError');
 const errorController = require('./controllers/errorController');
 const express = require('express');
 const http = require('http');
-const initializeSocket = require('./socket');
+//const initializeSocket = require('./socket');
 const bodyParser = require('body-parser');
 const connectDB = require('./db');
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
 const postCommentRoutes = require('./routes/postCommentRoutes')
-const FriendRequest = require('./models/FriendRequestSchema');
-const friendRequestRoutes = require('./routes/friendRequestRoutes')
+const friendRequest = require('./routes/friendRequestRoutes')
 const messageroute = require('../server/routes/messageroute')
 const problemRoutes = require('../server/routes/problemRoutes')
 const inputOutputRoutes = require('../server/routes/problemSolverQueryRoutes')
@@ -26,7 +25,7 @@ const app = express();
 const server = http.createServer(app);
 const feed = require('./routes/feedRoutes');
 const validateToken = require('./utils/validateToken');
-const io = initializeSocket(server);
+// const io = initializeSocket(server);
 
 // MIDLEWARES ->>
 app.use(cors({origin: process.env.REMOTE })); // <- CORS configuration, in case if you wanted to implemented authorization
@@ -72,14 +71,13 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' })); // <- Parses UR
  
   app.use('/api/posts', postRoutes);
   app.use('/api/comments',postCommentRoutes);
-  app.use('/api/connect' ,FriendRequest );
   app.use('/api/reaction',reactionsRoutes)
   
   app.use('/api/problems',problemRoutes);
   app.use('/api/query',inputOutputRoutes);
   app.use('/api/prompt',promptRoutes);
 
-  app.use('/api/connectroute',friendRequestRoutes )
+  app.use('/api/friendRequest',friendRequest)
   app.use('/api/friend' , friend)
   app.use('/api/post' , feed)
   app.use('/api/messageroute' , messageroute)

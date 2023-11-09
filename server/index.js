@@ -4,14 +4,14 @@ const cors = require('cors');
 const http = require('http');
 const app = require('./app');
 const server = http.createServer(app);
-const initializeSocket = require('./socket');
-const io = initializeSocket(server);
+// const initializeSocket = require('./socket');
+// const io = initializeSocket(server);
 
 // app.use(cors())
-app.use((req, res, next) => {
-  req.io = io;
-  next();
-});
+// app.use((req, res, next) => {
+//   req.io = io;
+//   next();
+// });
 
 // Middleware
 
