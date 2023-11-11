@@ -20,6 +20,8 @@ const problemRoutes = require('../server/routes/problemRoutes')
 const inputOutputRoutes = require('../server/routes/problemSolverQueryRoutes')
 const promptRoutes = require('../server/routes/promptRoutes')
 const reactionsRoutes = require('../server/routes/reactionsRoutes')
+const teamRoutes = require('../server/routes/teamRoutes')
+const inviteRoutes = require('../server/routes/inviteRoutes')
 const friend = require('./models/FriendSchema')
 const app = express();
 const server = http.createServer(app);
@@ -82,7 +84,8 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' })); // <- Parses UR
   app.use('/api/post' , feed)
   app.use('/api/messageroute' , messageroute)
   
-
+  app.use('/api/team', teamRoutes)
+  app.use('/api/invite',inviteRoutes)
 
 app.use(errorController); // <- Error Handling Middleware
 
