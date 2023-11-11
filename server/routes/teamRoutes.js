@@ -171,8 +171,22 @@ router.get('/all', async (req, res) => {
 
 
 
-// Get a post by ID
+// Get team by ID
+router.get('/get/:teamId', async (req, res) => {
+  try {
+    const teamId = req.params.teamId;
 
+    const team = await Team.findById(teamId)//.populate('members.user');
+
+    if (!team || team.isDeleted) {
+      return res.status(404).json({ error: 'Team not found' });
+    }
+
+    res.status(200).json(team);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 
 
