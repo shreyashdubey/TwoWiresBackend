@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   profession: { type: String },
   expertise: { type: String },
   confirmPassword: { type: String, required: true },
+  teams: [{type: mongoose.Schema.Types.ObjectId, ref: 'TeamSchema'}]
 });
 
 // Hash and salt the password before saving the user

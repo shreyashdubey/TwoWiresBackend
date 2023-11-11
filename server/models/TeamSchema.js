@@ -1,12 +1,31 @@
 const mongoose = require('mongoose');
 
+// Validation function to check for unique members
+function isMemberUnique(value) {
+    const members = this.members;
+    const existingMembers = members.filter((member) => member.user.toString() === value.toString());
+    return existingMembers.length === 0;
+}
+
 const teamSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  teams: [{
-      team: { type: mongoose.Schema.Types.ObjectId, ref: 'TeamSchema' },
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  teamName: {type: String, required: true, unique: true},
+  members: [{
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
       createdAt: { type: Date, default: Date.now },
       updatedAt: { type: Date, default: Date.now },
-    }]
+      isDeleted: { type: Boolean, default: false},
+    }],
+    isDeleted: {type: Boolean, default: false},
+    createdAt:{ type: Date, default: Date.now,},
+    updatedAt: { type: Date, default: Date.now,},
 });
+
+// Add the custom validation to the 'members' array
+teamSchema.path('members').validate({
+    validator: isMemberUnique,
+    message: 'Member already exists in the team.',
+});
+
 const Team = mongoose.model('TeamSchema', teamSchema);
 module.exports = Team;
