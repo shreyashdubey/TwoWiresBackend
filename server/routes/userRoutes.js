@@ -90,7 +90,7 @@ router.post(
       
       const accessToken = generateAccessToken ({user: user})
       const refreshToken = generateRefreshToken ({user: user})
-      res.json ({accessToken: accessToken, refreshToken: refreshToken, userId: user._id})
+      res.json ({accessToken: accessToken, refreshToken: refreshToken})
 
       // const token = createSecretToken(user._id);
       // res.cookie("token", token, {
