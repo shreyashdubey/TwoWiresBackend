@@ -11,12 +11,12 @@ function validateToken(req, res, next) {
         const authHeader = req.headers["authorization"]
     const token = authHeader?.split(" ")[1]  
     if (!Boolean(req.headers["authorization"])) {
-        res.send("Token not present")
+        res.status(401).send("Token not present")
     }
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
         if (err) { 
-            res.send("Token is invalid")
+            res.status(401).send("Token is invalid")
         } else {
             req.user = user;
             next();
