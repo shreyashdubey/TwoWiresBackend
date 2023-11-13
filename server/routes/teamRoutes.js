@@ -136,7 +136,7 @@ router.put('/delete/:teamId', async (req, res) => {
 // Get all teams for a user
 router.get('/all', async (req, res) => {
   try {
-    const { owner, page, pageSize } = req.body;
+    const { owner, page, pageSize } = req.query;
 
     // Check if the user exists
     const userExists = await User.findById(owner);

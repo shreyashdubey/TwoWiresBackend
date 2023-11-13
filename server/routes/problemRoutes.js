@@ -67,7 +67,7 @@ router.put('/update/:problemId', async (req, res) => {
 // Get all problems
 router.get('/all', async (req, res) => {
   try {
-    const { user, page, pageSize } = req.body;
+    const { user, page, pageSize } = req.query;
     const userExists = await User.findById(user);
     if (!userExists) {
       return res.status(404).json({ error: 'User not found' });
@@ -105,7 +105,7 @@ router.get('/all', async (req, res) => {
 router.get('/:problemID', async (req, res) => {
   try {
     const problem = await Problem.findById(req.params.problemID);
-    const { user} = req.body;
+    const { user} = req.query;
     const userExists = await User.findById(user);
     if (!userExists) {
       return res.status(404).json({ error: 'User not found' });

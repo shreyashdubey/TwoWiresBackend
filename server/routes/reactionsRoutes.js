@@ -86,7 +86,7 @@ router.put('/update/:ReactionId', async(req, res) => {
 router.get('/get/:itemId', async (req, res) => {
   try {
     const itemId = req.params.itemId;
-    const { user, itemType, page, pageSize } = req.body;
+    const { user, itemType, page, pageSize } = req.query;
     const userExists = await User.findById(user);
     if (!userExists) {
       return res.status(404).json({ error: 'User not found' });
