@@ -22,6 +22,7 @@ const promptRoutes = require('../server/routes/promptRoutes')
 const reactionsRoutes = require('../server/routes/reactionsRoutes')
 const teamRoutes = require('../server/routes/teamRoutes')
 const inviteRoutes = require('../server/routes/inviteRoutes')
+const notificationRoutes = require('../server/routes/notificationRoutes')
 const friend = require('./models/FriendSchema')
 const app = express();
 const server = http.createServer(app);
@@ -86,6 +87,7 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' })); // <- Parses UR
   
   app.use('/api/team', teamRoutes)
   app.use('/api/invite',inviteRoutes)
+  //app.use('/api/notification',notificationRoutes)
 
 app.use(errorController); // <- Error Handling Middleware
 
