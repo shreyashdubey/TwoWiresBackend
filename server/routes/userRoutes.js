@@ -142,7 +142,7 @@ router.get('/search', async (req, res) => {
 });
 
 
-router.get('/:userId', async (req, res) => {
+router.get('/byId/:userId', async (req, res) => {
   const userId = req.params.userId;
   try {
     const user = await User.findById(userId);
@@ -156,6 +156,21 @@ router.get('/:userId', async (req, res) => {
   }
 });
   
+
+router.get('/byName/:userName', async (req, res) => {
+  const userName = req.params.userName;
+  try {
+    const user = await User.find({username : userName});
+    if (!user || user.length == 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ user });
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ error: 'Failed to fetch user profile' });
+  }
+})
   // accessTokens
 function generateAccessToken(user) {
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: "700m"}) 
