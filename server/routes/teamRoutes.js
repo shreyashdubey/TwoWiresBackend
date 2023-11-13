@@ -135,7 +135,7 @@ router.put('/delete/:teamId', async (req, res) => {
 // Get all teams for a user
 router.get('/all', async (req, res) => {
   try {
-    const { user, page, pageSize } = req.query;
+    const { user, page, pageSize } = req.body;
 
     // Check if the user exists
     const userExists = await User.findById(user);
@@ -149,11 +149,11 @@ router.get('/all', async (req, res) => {
     };
     const skip = (pageOptions.page - 1) * pageOptions.pageSize;
 
-    const teams = await Team.find({ owner: owner })
+    const teams = await Team.find({ owner: user })
       .skip(skip)
       .limit(pageOptions.pageSize);
 
-    const totalTeams = await Team.countDocuments({ owner: owner });
+    const totalTeams = await Team.countDocuments({ owner: user });
 
     const totalPages = Math.ceil(totalTeams / pageOptions.pageSize);
 

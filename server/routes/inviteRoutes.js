@@ -31,6 +31,16 @@ router.post('/create', async (req, res) => {
         return res.status(404).json({ error: 'Team not found' });
       }
 
+      const existingInvite = await Invite.findOne({
+        sender: senderUser,
+        reciever: recieverUser,
+        team: teamExists,
+      });
+  
+      if (existingInvite && existingInvite.didExpire == false) {
+        return res.status(400).json({ error: 'Invitation already exists' });
+      }
+
       // Create a new invitation
       const newInvite = new Invite({
         sender,
@@ -79,15 +89,36 @@ router.put('/accept/:inviteId', async (req, res) => {
         return res.status(404).json({ error: 'Team not found' });
         }
         
+
+        // Check if the receiver is not already a member of the team
+        const isReceiverAlreadyMember = teamExists.members.some(
+          (member) => member.user.toString() === receiverUser._id.toString()
+        );
+
+        if (!isReceiverAlreadyMember) {
+          // Add receiverUser as a member to the team
+          teamExists.members.push({
+            user: receiverUser._id,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            isDeleted: false,
+          });
+        }
+
         updatedInvite.isAccepted = true
         const savedInvite = await updatedInvite.save();
-        
+
+        // Update the team document with the new member
+        await teamExists.save();        
+
         // Add team id to the User's teamId collection
         const updatedUser = await User.findOneAndUpdate(
             { _id: updatedInvite.reciever, 'teams': { $ne: updatedInvite.sourceId } }, // Check if team ID doesn't exist in the user's 'teams' array
             { $addToSet: { teams: savedTeam._id } }, // Add team ID to 'teams' array
             { new: true }
           );
+
+        
 
 
         // Create a notification for the receiver
@@ -104,6 +135,24 @@ router.put('/accept/:inviteId', async (req, res) => {
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
+});
+
+router.get('/get/:userId', async (req, res) => {
+  try {
+      const userId = req.params.userId;
+      const userExists = await User.findById(userId);
+      if(!userExists){
+        res.status(404),json({error: "User not found"});
+      }      
+
+      const unreadNotifications = await Notification.find({
+        user: userExists,
+        isRead: false,
+      })
+      res.status(200).json(unreadNotifications);
+  } catch (err) {
+      res.status(400).json({ error: err.message });
+  }
 });
 
 module.exports = router;
