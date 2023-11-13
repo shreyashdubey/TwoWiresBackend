@@ -91,7 +91,7 @@ router.post('/create', async (req, res) => {
   // Retrieving comment on a Post in a tree structure, look for the sort('path') function used, TODO- also give logic for UI 
   router.get('/all/:problemId', async (req, res) => {
     const problemId = req.params.problemId;
-    const { user, page, pageSize} = req.body;
+    const { user, page, pageSize} = req.query;
     try {
     
       const userExists = await User.findById(user);

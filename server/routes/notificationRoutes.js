@@ -63,7 +63,7 @@ router.put('/notification/:notificationId', async (req, res) => {
 // Get all posts
 router.get('/all', async (req, res) => {
   try {
-    const { user, page, pageSize } = req.body;
+    const { user, page, pageSize } = req.query;
     const userExists = await User.findById(user);
     if (!userExists) {
       return res.status(404).json({ error: 'User not found' });
