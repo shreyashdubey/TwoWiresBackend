@@ -11,7 +11,7 @@ const validateToken = require('../utils/validateToken');
 const ReachabilityOptions = require('../enums/ReachabilityOptions');
 const CommentControl = require('../enums/CommentControl')
 const Team = require('../models/TeamSchema')
-
+const TeamInviteStatus = require('../enums/TeamInviteStatus');
 // Create a new team
 router.post('/create', async (req, res) => {
   try {
@@ -20,12 +20,13 @@ router.post('/create', async (req, res) => {
     if (!userExists) {
       return res.status(404).json({ error: 'User not found' });
     }
+    console.log(' presaved team')
     const newTeam = new Team({
       owner,
       teamName,
-      members: [{ user: owner }],
+      members: [{ user: owner, username: userExists.username, inviteStatus: TeamInviteStatus.ACCEPTED }],
     });
-
+    console.log('saved team')
     const savedTeam = await newTeam.save();
     
     // Update the owner's user document to add the team ID if it doesn't already exist
@@ -48,7 +49,7 @@ router.post('/create', async (req, res) => {
 router.put('/update/:teamId', async (req, res) => {
   try {
     const teamId = req.params.teamId;
-    const { owner, teamName, membersToDelete, deleteTeam } = req.body;
+    const { owner, teamName, membersToDelete} = req.body;
 
     const updatedTeam = await Team.findById(teamId);
 
@@ -135,10 +136,10 @@ router.put('/delete/:teamId', async (req, res) => {
 // Get all teams for a user
 router.get('/all', async (req, res) => {
   try {
-    const { user, page, pageSize } = req.body;
+    const { owner, page, pageSize } = req.body;
 
     // Check if the user exists
-    const userExists = await User.findById(user);
+    const userExists = await User.findById(owner);
     if (!userExists) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -149,11 +150,11 @@ router.get('/all', async (req, res) => {
     };
     const skip = (pageOptions.page - 1) * pageOptions.pageSize;
 
-    const teams = await Team.find({ owner: user })
+    const teams = await Team.find({ owner: owner })
       .skip(skip)
       .limit(pageOptions.pageSize);
 
-    const totalTeams = await Team.countDocuments({ owner: user });
+    const totalTeams = await Team.countDocuments({ owner: owner });
 
     const totalPages = Math.ceil(totalTeams / pageOptions.pageSize);
 

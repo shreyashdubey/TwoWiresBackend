@@ -1,3 +1,4 @@
+const TeamInviteStatus = require('../enums/TeamInviteStatus');
 const mongoose = require('mongoose');
 
 // Validation function to check for unique members
@@ -6,15 +7,17 @@ function isMemberUnique(value) {
     const existingMembers = members.filter((member) => member.user.toString() === value.toString());
     return existingMembers.length === 0;
 }
-
+ 
 const teamSchema = new mongoose.Schema({
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   teamName: {type: String, required: true, unique: true},
   members: [{
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+      user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+      username: {type: String, required: true},
       createdAt: { type: Date, default: Date.now },
       updatedAt: { type: Date, default: Date.now },
-      isDeleted: { type: Boolean, default: false},
+      inviteStatus: {type: String, enum: TeamInviteStatus, required: true},
+      isDeleted: {type: Boolean, default: false},
     }],
     isDeleted: {type: Boolean, default: false},
     createdAt:{ type: Date, default: Date.now,},
