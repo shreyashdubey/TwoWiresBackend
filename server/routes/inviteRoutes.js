@@ -60,7 +60,7 @@ router.post('/create', async (req, res) => {
         isDeleted: false,
       });
   
-      const savedNotification = await notification.save();
+       await notification.save();
 
       res.status(201).json(savedInvite);
     } catch (err) {
@@ -137,6 +137,27 @@ router.put('/accept/:inviteId', async (req, res) => {
     }
 });
 
+// TODO: If the user  is already invited delete him from more places
+router.get('/delete/:inviteId', async (req, res) => {
+  const inviteId = req.params.inviteId;
+  const invite = await Notification.findById(inviteId);
+  
+  if (!invite) {
+    return res.status(404).json({ error: 'Invite not found' });
+  }
+  // Why not query for deleted ones 
+  if(invite.isDeleted){
+    return res.status(404).json({ error: 'invite is already deleted' });
+  }
+  invite.isDeleted = true;
+  invite.updatedAt = new Date()
+
+  const updatedInvite = await invite.save();
+
+  res.status(200).json(updatedInvite);
+})
+
+// This is for unaccepted invites
 router.get('/get/:userId', async (req, res) => {
   try {
       const userId = req.params.userId;
@@ -145,11 +166,11 @@ router.get('/get/:userId', async (req, res) => {
         res.status(404),json({error: "User not found"});
       }      
 
-      const unreadNotifications = await Notification.find({
-        user: userExists,
-        isRead: false,
+      const pendingInvites = await Invite.find({
+        reciever: userExists,
+        inviteStatus: TeamInviteStatus.PENDING,
       })
-      res.status(200).json(unreadNotifications);
+      res.status(200).json(pendingInvites);
   } catch (err) {
       res.status(400).json({ error: err.message });
   }

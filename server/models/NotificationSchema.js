@@ -7,6 +7,7 @@ const notificationSchema = new mongoose.Schema({
   isRead: {type: Boolean, required: true},
   isDeleted: {type: Boolean, required: true},
   createdAt: {type: Date, default: Date.now,},
+  updatedAt: {type: Date, default: Date.now,},
 });
 
 const Notification = mongoose.model('Notification', notificationSchema);
