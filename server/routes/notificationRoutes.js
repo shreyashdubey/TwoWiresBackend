@@ -14,53 +14,15 @@ const CommentControl = require('../enums/CommentControl')
 router.put('/notification/:notificationId', async (req, res) => {
   try {
     const notificationId = req.params.notificationId;
-    const {userId, sourceId} = req.body;
-
-    // Additional checks for specific fields if they are present in updates
-    if (updates.user) {
-      const userExists = await User.findById(updates.user);
-      if (!userExists) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-    }
-
-    if (updates.reachability) {
-      if (!Object.values(ReachabilityOptions).includes(updates.reachability.trim())) {
-        return res.status(400).json({ error: 'Invalid reachability option.' });
-      }
-    }
-
-    if (updates.commentControl) {
-      if (!Object.values(CommentControl).includes(updates.commentControl.trim())) {
-        return res.status(400).json({ error: 'Invalid comment control option.' });
-      }
-    }
-
-    // Find the post by ID
-    const post = await Post.findById(postId);
-
-    if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
-    }
-
-    for (const key in updates) {
-      if (Object.prototype.hasOwnProperty.call(updates, key)) {
-        post[key] = updates[key];
-      }
-    }
-
-    post.updatedAt = new Date();
-
-    const updatedPost = await post.save();
-
-    res.status(200).json(updatedPost);
+    
+    res.status(200).json();
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 
-// Get all posts
+// Get all notifications
 router.get('/all', async (req, res) => {
   try {
     const { user, page, pageSize } = req.query;
@@ -75,61 +37,63 @@ router.get('/all', async (req, res) => {
     };
 
     const skip = (pageOptions.page - 1) * pageOptions.pageSize;
-
-    const posts = await Post.find({user: user})
+    //TODO: Check if two calls to the same table be avoided
+    const notifications = await Notification.find({user: user, isDeleted: false})
     .skip(skip)
     .limit(pageOptions.pageSize);
 
-    const totalPosts = await Post.countDocuments({ user: user});
+    const totalNotifications = await Notification.countDocuments({ user: user, isDeleted: false});
 
-    const totalPages = Math.ceil(totalPosts / pageOptions.pageSize);
+    const totalPages = Math.ceil(totalNotifications / pageOptions.pageSize);
 
     res.status(200).json({
-      posts,
+      notifications,
       page: pageOptions.page,
       pageSize: pageOptions.pageSize,
       totalPages,
-      totalPosts,
+      totalNotifications,
     });
   } catch (err) { 
     res.status(500).json({ error: err.message });
   }
 });
 
-// Get a post by ID
-router.get('/:postId', async (req, res) => {
+// Get a notification by ID or open it by an Id
+router.get('/:notificationId', async (req, res) => {
   try {
-    const post = await Post.findById(req.params.postId);
+    const notificationId = req.params.notificationId;
+    const notification = await Notification.findById(req.params.notificationId);
     
-    if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
+    if (!notification) {
+      return res.status(404).json({ error: 'Notification not found' });
     }
     
-    res.status(200).json(post);
+    res.status(200).json(notification);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+  
 
-
-// Delete a post by ID
-router.put('/delete/:postId', async (req, res) => {
+// Delete a post by ID - You might need delete all afterwards
+router.put('/delete/:notificationId', async (req, res) => {
   try {
-    const post = await Post.findById(req.params.postId);
+    const notificationId = req.params.notificationId;
+    const notification = await Notification.findById(notificationId);
     
-    if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
+    if (!notification) {
+      return res.status(404).json({ error: 'Notification not found' });
     }
     
-    if(post.isDeleted){
-      return res.status(404).json({ error: 'Post is already deleted' });
+    if(notification.isDeleted){
+      return res.status(404).json({ error: 'Notification is already deleted' });
     }
-    post.isDeleted = true;
-    post.updatedAt = new Date()
+    notification.isDeleted = true;
+    notification.updatedAt = new Date()
 
-    const updatedPost = await post.save();
+    const updatedNotification = await notification.save();
 
-    res.status(200).json(updatedPost);
+    res.status(200).json(updatedNotification);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

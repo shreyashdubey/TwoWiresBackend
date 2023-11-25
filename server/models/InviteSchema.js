@@ -1,6 +1,6 @@
 const TeamInviteStatus = require('../enums/TeamInviteStatus');
 const mongoose = require('mongoose');
-
+// TODO: Receiver spell 
 const inviteSchema = new mongoose.Schema({
     sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     team: {type: mongoose.Schema.Types.ObjectId, ref: 'TeamSchema', required: true},
