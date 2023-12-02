@@ -11,6 +11,7 @@ const educationSchema = new mongoose.Schema({
   location: {type: String},
   startDate: {type: Date},
   endDate: {type: Date},
+  isDeleted: {type: Boolean, default: false},
 });
 const EducationSchema = mongoose.model('EducationSchema', educationSchema);
 module.exports = EducationSchema;

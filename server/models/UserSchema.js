@@ -6,10 +6,10 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   username: { type: String, required: true },
-  education: {type: mongoose.Schema.Types.ObjectId, ref: 'EducationSchema', required: true },
-  experience: {type: mongoose.Schema.Types.ObjectId, ref: 'ExperienceSchema', required: true},
+  education: [{type: mongoose.Schema.Types.ObjectId, ref: 'EducationSchema' }],
+  experience: [{type: mongoose.Schema.Types.ObjectId, ref: 'ExperienceSchema'}],
   skills: [{ type: String }],
-  confirmPassword: { type: String, required: true },
+  confirmPassword: { type: String, required: false },
   teams: [{type: mongoose.Schema.Types.ObjectId, ref: 'TeamSchema'}],
 });
 
