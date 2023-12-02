@@ -15,6 +15,7 @@ const experienceSchema = new mongoose.Schema({
   }},
   startDate: {type: Date},
   endDate: {type: Date, default: null},
+  isDeleted: {type: Boolean, default: false},
 },
 {
   timestamps: true,

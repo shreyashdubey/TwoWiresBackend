@@ -384,7 +384,7 @@ router.post(
   '/add-experience',
    async (req, res) => {
   try {
-    const { user: userId, title, industry, description, employmentType, locationType, skills, location, startMonth, startYear, endMonth, endYear } = req.body;
+    const { userId, title, industry, description, employmentType, locationType, skills, location, startMonth, startYear, endMonth, endYear } = req.body;
     
     const startDate = new Date(startYear, startMonth - 1, 1);
     const endDate = endYear ? new Date(endYear, endMonth - 1, 1) : undefined;
@@ -415,4 +415,105 @@ router.post(
     res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
+
+// Edit Experience
+router.put('/edit-experience/:experienceId', async (req, res) => {
+  try {
+    const { title, industry, description, employmentType, locationType, skills, location, startMonth, startYear, endMonth, endYear } = req.body;
+    const { experienceId } = req.params;
+
+    // Validate input data here
+
+    const startDate = new Date(startYear, startMonth - 1, 1);
+    const endDate = endYear ? new Date(endYear, endMonth - 1, 1) : undefined;
+
+    // Find the experience by ID
+    const existingExperience = await Experience.findById(experienceId);
+
+    if (!existingExperience) {
+      return res.status(404).json({ success: false, error: 'Experience not found' });
+    }
+
+    // Update the experience fields
+    existingExperience.title = title;
+    existingExperience.industry = industry;
+    existingExperience.description = description;
+    existingExperience.employmentType = employmentType;
+    existingExperience.locationType = locationType;
+    existingExperience.skills = skills;
+    existingExperience.location = location;
+    existingExperience.startDate = startDate;
+    existingExperience.endDate = endDate;
+
+    // Save the updated experience
+    const updatedExperience = await existingExperience.save();
+
+    res.status(200).json({ success: true, data: updatedExperience });
+  } catch (error) {
+    console.error('Error updating experience:', error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
+
+// Delete Experience
+router.delete('/delete-experience/:experienceId', async (req, res) => {
+  try {
+    const { experienceId } = req.params;
+    const existingExperience = await Experience.findById(experienceId);
+
+    if (!existingExperience) {
+      return res.status(404).json({ success: false, error: 'Experience not found' });
+    }
+    existingExperience.isDeleted = true;
+
+    const updatedExperience = await existingExperience.save();
+
+    await User.findByIdAndUpdate(existingExperience.user, { $pull: { experience: experienceId } });
+
+    res.status(200).json({ success: true, data: updatedExperience });
+  } catch (error) {
+    console.error('Error deleting experience:', error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
+
+// Get Experiences
+router.get('/get-all-experience', async (req, res) => {
+  try {
+    const { user, page, pageSize } = req.body;
+
+    const userExists = await User.findById(user);
+    if (!userExists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const pageOptions = {
+      page: parseInt(page, 10) || 1, // Current page (default to 1)
+      pageSize: parseInt(pageSize, 10) || 10, // Number of items per page (default to 10)
+    };
+
+    const skip = (pageOptions.page - 1) * pageOptions.pageSize;
+
+    const experienceEntries = await Experience.find({ user: user, isDeleted: false })
+      .skip(skip)
+      .limit(pageOptions.pageSize)
+      .sort({ startDate: -1 }); // Sorting by start date in descending order, modify as needed
+
+    const totalExperienceEntries = await Experience.countDocuments({ user: user, isDeleted: false });
+
+    const totalPages = Math.ceil(totalExperienceEntries / pageOptions.pageSize);
+
+    res.status(200).json({
+      experienceEntries,
+      page: pageOptions.page,
+      pageSize: pageOptions.pageSize,
+      totalPages,
+      totalExperienceEntries,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 module.exports = router;
