@@ -9,7 +9,7 @@ const educationSchema = new mongoose.Schema({
   description: {type: String},
   skills: [{type: String}],
   location: {type: String, required: true},
-  startDate: {type: Date}, required: true,
+  startDate: {type: Date, required: true},
   endDate: {type: Date, default: null},
   isDeleted: {type: Boolean, default: false},
 },

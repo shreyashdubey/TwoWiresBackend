@@ -195,12 +195,8 @@ router.post(
     check('school').notEmpty().withMessage('School is required'),
     check('degree').notEmpty().withMessage('Degree is required'),
     check('fieldOfStudy').notEmpty().withMessage('Field of study is required'),
-    check('grade').notEmpty().withMessage('Grade is required'),
-    check('description').notEmpty().withMessage('Description is required'),
     check('startMonth').isNumeric().withMessage('Start month must be a number'),
     check('startYear').isNumeric().withMessage('Start year must be a number'),
-    check('endMonth').isNumeric().withMessage('End month must be a number'),
-    check('endYear').isNumeric().withMessage('End year must be a number'),
   ],
   async (req, res) => {
     const errors = validationResult(req);
