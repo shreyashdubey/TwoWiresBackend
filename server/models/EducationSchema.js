@@ -10,8 +10,20 @@ const educationSchema = new mongoose.Schema({
   skills: [{type: String}],
   location: {type: String},
   startDate: {type: Date},
-  endDate: {type: Date},
+  endDate: {type: Date, default: null},
   isDeleted: {type: Boolean, default: false},
-});
+},
+{
+  timestamps: true,
+  validate: [
+    {
+      validator: function () {
+        return !this.startDate || !this.endDate || this.startDate <= this.endDate;
+      },
+      message: 'End date must be greater than or equal to start date.',
+    },
+  ],
+}
+);
 const EducationSchema = mongoose.model('EducationSchema', educationSchema);
 module.exports = EducationSchema;

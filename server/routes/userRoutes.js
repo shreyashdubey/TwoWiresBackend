@@ -3,6 +3,7 @@ const { check, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const User = require('../models/UserSchema');
 const Education = require('../models/EducationSchema');
+const Experience = require('../models/ExperienceSchema');
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 const { createSecretToken } = require("../utils/SecretToken");
@@ -378,6 +379,43 @@ router.get('/get-all-education', async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Add Experience
+router.post(
+  '/add-experience',
+   async (req, res) => {
+  try {
+    const { user: userId, title, industry, description, employmentType, locationType, skills, location, startMonth, startYear, endMonth, endYear } = req.body;
+    
+    const startDate = new Date(startYear, startMonth - 1, 1);
+    const endDate = endYear ? new Date(endYear, endMonth - 1, 1) : undefined;
+    
+    // Create a new experience
+    const newExperience = new Experience({
+      user: userId,
+      title,
+      industry,
+      description,
+      employmentType,
+      locationType,
+      skills,
+      location,
+      startDate,
+      endDate,
+    });
+
+    // Save the experience to the database
+    const savedExperience = await newExperience.save();
+
+    // Add the experience to the user's experience array
+    await User.findByIdAndUpdate(userId, { $push: { experience: savedExperience._id } });
+
+    res.status(201).json({ success: true, data: savedExperience });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
 module.exports = router;
