@@ -205,7 +205,7 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { userId, school, degree, fieldOfStudy, grade, description, startMonth, startYear, endMonth, endYear } = req.body;
+    const { userId, school, degree, fieldOfStudy, grade, description, location, startMonth, startYear, endMonth, endYear } = req.body;
 
     try {
       // Check if the user exists
@@ -225,6 +225,7 @@ router.post(
         degree,
         fieldOfStudy,
         grade,
+        location,
         description,
         startDate,
         endDate,
