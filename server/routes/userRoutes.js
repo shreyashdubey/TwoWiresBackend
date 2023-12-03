@@ -256,12 +256,8 @@ router.put(
     check('school').notEmpty().withMessage('School is required'),
     check('degree').notEmpty().withMessage('Degree is required'),
     check('fieldOfStudy').notEmpty().withMessage('Field of study is required'),
-    check('grade').notEmpty().withMessage('Grade is required'),
-    check('description').notEmpty().withMessage('Description is required'),
     check('startMonth').isNumeric().withMessage('Start month must be a number'),
     check('startYear').isNumeric().withMessage('Start year must be a number'),
-    check('endMonth').isNumeric().withMessage('End month must be a number'),
-    check('endYear').isNumeric().withMessage('End year must be a number'),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -270,7 +266,7 @@ router.put(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { userId, school, degree, fieldOfStudy, grade, description, startMonth, startYear, endMonth, endYear } = req.body;
+    const { userId, school, degree, fieldOfStudy, grade, description, startMonth, location, startYear, endMonth, endYear } = req.body;
     const { educationId } = req.params;
 
     try {
@@ -295,6 +291,7 @@ router.put(
       education.degree = degree;
       education.fieldOfStudy = fieldOfStudy;
       education.grade = grade;
+      education.location = location;
       education.description = description;
       education.startDate = startDate;
       education.endDate = endDate;
@@ -345,7 +342,7 @@ router.delete('/delete-education/:educationId', async (req, res) => {
 // Get all Education
 router.get('/get-all-education', async (req, res) => {
   try {
-    const { user, page, pageSize } = req.body;
+    const { user, page, pageSize } = req.query;
 
     const userExists = await User.findById(user);
     if (!userExists) {
