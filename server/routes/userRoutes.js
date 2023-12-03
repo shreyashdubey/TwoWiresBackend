@@ -309,7 +309,7 @@ router.put(
 // Delete Education
 router.delete('/delete-education/:educationId', async (req, res) => {
   const { educationId } = req.params;
-
+  console.log("educationId",educationId)
   try {
     // Check if the education entry exists
     const education = await Education.findById(educationId);
@@ -320,13 +320,9 @@ router.delete('/delete-education/:educationId', async (req, res) => {
     // Mark the education entry as deleted
     education.isDeleted = true;
     await education.save();
-
+    console.log(education)
     // Remove the education entry ID from the user's education array
-    const user = await User.findOneAndUpdate(
-      { _id: education.user, 'education': education._id },
-      { $pull: { 'education': education._id } },
-      { new: true }
-    );
+    const user = await  User.findByIdAndUpdate(education.user, { $pull: { education: education._id } });  
 
     if (!user) {
       return res.status(404).json({ errors: [{ msg: 'User not found' }] });
