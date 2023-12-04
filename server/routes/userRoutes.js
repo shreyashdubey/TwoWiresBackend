@@ -475,7 +475,7 @@ router.delete('/delete-experience/:experienceId', async (req, res) => {
 // Get Experiences
 router.get('/get-all-experience', async (req, res) => {
   try {
-    const { user, page, pageSize } = req.body;
+    const { user, page, pageSize } = req.query;
 
     const userExists = await User.findById(user);
     if (!userExists) {
