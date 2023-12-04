@@ -377,7 +377,7 @@ router.post(
   '/add-experience',
    async (req, res) => {
   try {
-    const { userId, title, industry, description, employmentType, locationType, skills, location, startMonth, startYear, endMonth, endYear } = req.body;
+    const { userId, title, industry, description, employmentType, companyName, locationType, skills, location, startMonth, startYear, endMonth, endYear } = req.body;
     
     const startDate = new Date(startYear, startMonth - 1, 1);
     const endDate = endYear ? new Date(endYear, endMonth - 1, 1) : undefined;
@@ -387,6 +387,7 @@ router.post(
       user: userId,
       title,
       industry,
+      companyName,
       description,
       employmentType,
       locationType,
@@ -412,7 +413,7 @@ router.post(
 // Edit Experience
 router.put('/edit-experience/:experienceId', async (req, res) => {
   try {
-    const { title, industry, description, employmentType, locationType, skills, location, startMonth, startYear, endMonth, endYear } = req.body;
+    const { title, industry, description, employmentType, locationType, companyName, skills, location, startMonth, startYear, endMonth, endYear } = req.body;
     const { experienceId } = req.params;
 
     // Validate input data here
@@ -432,6 +433,7 @@ router.put('/edit-experience/:experienceId', async (req, res) => {
     existingExperience.industry = industry;
     existingExperience.description = description;
     existingExperience.employmentType = employmentType;
+    existingExperience.companyName = companyName;
     existingExperience.locationType = locationType;
     existingExperience.skills = skills;
     existingExperience.location = location;
