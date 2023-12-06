@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   username: { type: String, required: true },
+  skill: [{type: mongoose.Schema.Types.ObjectId, ref: 'SkillSchema'}],
   education: [{type: mongoose.Schema.Types.ObjectId, ref: 'EducationSchema' }],
   experience: [{type: mongoose.Schema.Types.ObjectId, ref: 'ExperienceSchema'}],
   skills: [{ type: String }],

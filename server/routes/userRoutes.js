@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const User = require('../models/UserSchema');
 const Education = require('../models/EducationSchema');
 const Experience = require('../models/ExperienceSchema');
+const Skill = require('../models/SkillSchema');
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 const { createSecretToken } = require("../utils/SecretToken");
@@ -510,5 +511,106 @@ router.get('/get-all-experience', async (req, res) => {
   }
 });
 
+// Add Skill
+router.post(
+  '/add-skill',
+  [
+    check('userId').isMongoId().withMessage('Invalid user ID'),
+    check('skillName').notEmpty().withMessage('Skill is required'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
 
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { userId, skillName} = req.body;
+
+    try {
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ errors: [{ msg: 'User not found' }] });
+      }
+
+      const newSkill = new Skill({
+        user: userId,
+        skillName,
+      });
+
+      await newSkill.save();
+
+      if (!user.skill) {
+        user.skill = []; 
+      }
+      user.skill.push(newSkill._id);
+      await user.save();
+
+      res.status(201).json({ message: 'Skill entry added successfully', success: true, skill: newSkill });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ errors: [{ msg: 'Server error' }] });
+    }
+  }
+);
+
+// Delete Skill
+router.delete('/delete-skill/:skillId', async (req, res) => {
+  try {
+    const { skillId } = req.params;
+    const existingSkill = await Skill.findById(skillId);
+
+    if (!existingSkill) {
+      return res.status(404).json({ success: false, error: 'Skill not found' });
+    }
+    existingSkill.isDeleted = true;
+
+    const updatedSkill = await existingSkill.save();
+
+    await User.findByIdAndUpdate(existingSkill.user, { $pull: { skill: skillId } });
+
+    res.status(200).json({ success: true, data: updatedSkill });
+  } catch (error) {
+    console.error('Error deleting skill:', error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
+
+// Get All skills
+router.get('/get-all-skill', async (req, res) => {
+  try {
+    const { user, page, pageSize } = req.query;
+
+    const userExists = await User.findById(user);
+    if (!userExists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const pageOptions = {
+      page: parseInt(page, 10) || 1,
+      pageSize: parseInt(pageSize, 10) || 10,
+    };
+
+    const skip = (pageOptions.page - 1) * pageOptions.pageSize;
+
+    const skillEntries = await Skill.find({ user: user, isDeleted: false })
+      .skip(skip)
+      .limit(pageOptions.pageSize)
+
+    const totalSkillEntries = await Skill.countDocuments({ user: user, isDeleted: false });
+
+    const totalPages = Math.ceil(totalSkillEntries / pageOptions.pageSize);
+
+    res.status(200).json({
+      skillEntries,
+      page: pageOptions.page,
+      pageSize: pageOptions.pageSize,
+      totalPages,
+      totalSkillEntries,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 module.exports = router;
