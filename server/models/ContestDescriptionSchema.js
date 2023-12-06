@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const contestDescriptionSchema = new mongoose.Schema({
-  admin: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
   contest: { type: mongoose.Schema.Types.ObjectId, ref: 'ContestSchema', required: true},
   submissions: [{type: mongoose.Schema.Types.ObjectId, ref: 'SubmissonSchema'}],
   subtitle: {type: String, required: true},
