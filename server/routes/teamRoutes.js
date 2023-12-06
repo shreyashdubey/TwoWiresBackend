@@ -20,13 +20,11 @@ router.post('/create', async (req, res) => {
     if (!userExists) {
       return res.status(404).json({ error: 'User not found' });
     }
-    console.log(' presaved team')
     const newTeam = new Team({
       owner,
       teamName,
       members: [{ user: owner, username: userExists.username, inviteStatus: TeamInviteStatus.ACCEPTED }],
     });
-    console.log('saved team')
     const savedTeam = await newTeam.save();
     
     // Update the owner's user document to add the team ID if it doesn't already exist

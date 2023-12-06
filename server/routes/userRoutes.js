@@ -310,7 +310,6 @@ router.put(
 // Delete Education
 router.delete('/delete-education/:educationId', async (req, res) => {
   const { educationId } = req.params;
-  console.log("educationId",educationId)
   try {
     // Check if the education entry exists
     const education = await Education.findById(educationId);
