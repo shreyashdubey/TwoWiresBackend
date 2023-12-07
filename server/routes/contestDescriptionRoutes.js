@@ -58,73 +58,94 @@ async (req, res) => {
   }
 });
 
-// POST route to add contestCreator to a contest
-router.post('/add-contest-creator/:contestId', async (req, res) => {
-    try {
-      const { contestId } = req.params;
-      const { userIdToAdd, admin } = req.body;
-  
-      const contest = await Contest.findById(contestId);
-      if (!contest) {
-        return res.status(404).json({ error: 'Contest not found' });
-      }
-      if(contest.isPublished){
-        return res.status(400).json({ error: 'You cannot add creators after publishing the contest'});
-      }
-      const userToAdd = await User.findById(userIdToAdd);
-      if (!userToAdd) {
-        return res.status(404).json({ error: 'UserToAdd not found' });
-      }
+// Edit contest description route
+router.put('/edit-contest-description/:contestId', async (req, res) => {
+  try {
+    const { contestId } = req.params;
+    const { subtitle, overview, description, evaluation, timeline, tags } = req.body;
 
-      if (!contest.contestCreator.includes(admin)) {
-        return res.status(400).json({ error: 'Only contest creators can add user to creator list' });
-      }
-  
-      if (contest.contestCreator.includes(userIdToAdd)) {
-        return res.status(400).json({ error: 'User is already a contestCreator for this contest' });
-      }
-  
-      // Add the user as a contestCreator
-      contest.contestCreator.push(userIdToAdd);
-      await contest.save();
-      
-      userToAdd.authouredContests.push(contest._id);
-      await userToAdd.save();
-
-      res.status(200).json({ message: 'User added as a Contest Creator successfully', success: true, contest });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+    const contest = await Contest.findById(contestId);
+    if (!contest) {
+      return res.status(404).json({ error: 'Contest not found' });
     }
-  });
-  
-// Delete contest
-router.delete('/delete-contest/:contestId/:adminId', async (req, res) => {
-    const { contestId, adminId } = req.params;
-    try {
-      // Check if the education entry exists
-      const contest = await Contest.findById(contestId);
-      if (!contest) {
-        return res.status(404).json({ errors: [{ msg: 'Contest not found' }] });
-      }
-
-      if (!contest.contestCreator.includes(adminId)) {
-        return res.status(400).json({ error: 'Only contest creators can delete the Contest' });
-      }
-
-      contest.isDeleted = true;
-      await contest.save();
-
-      const user = await  User.findByIdAndUpdate(adminId, { $pull: { authouredContests: contest._id } });  
-  
-      if (!user) {
-        return res.status(404).json({ errors: [{ msg: 'User not found' }] });
-      }
-
-      res.status(200).json({ message: 'Contest deleted successfully', success: true });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ errors: [{ msg: 'Server error' }] });
+    if(contest.isPublished){
+      return res.status(400).json({ error: 'published contest cannot be edited' });
     }
-  });
+    
+
+    const existingContestDescription = await ContestDescription.findById(contest.contestDescription);
+
+    if (!existingContestDescription) {
+      return res.status(404).json({ error: `Contest description with ID ${contestId} not found` });
+    }
+    
+    existingContestDescription.subtitle = subtitle || existingContestDescription.subtitle;
+    existingContestDescription.overview = overview || existingContestDescription.overview;
+    existingContestDescription.description = description || existingContestDescription.description;
+    existingContestDescription.evaluation = evaluation || existingContestDescription.evaluation;
+    existingContestDescription.timeline = timeline || existingContestDescription.timeline;
+    existingContestDescription.tags = tags || existingContestDescription.tags;
+
+    // Save the updated contest description
+    const updatedContestDescription = await existingContestDescription.save();
+
+    res.status(200).json({ success: true, message: 'Contest description updated successfully', contestDescription: updatedContestDescription });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Delete contest description route
+router.delete('/delete-contest-description/:contestId', async (req, res) => {
+  try {
+    const { contestId } = req.params;
+    
+    const contest = await Contest.findById(contestId);
+    if (!contest) {
+      return res.status(404).json({ error: 'Contest not found' });
+    }
+    if(contest.isPublished){
+      return res.status(400).json({ error: `Contest description cannot be deleted after publishing.` });
+    }
+    // Check if the contest description with the provided ID exists
+    const existingContestDescription = await ContestDescription.findById(contest.contestDescription);
+
+    if (!existingContestDescription) {
+      return res.status(404).json({ error: `Contest description with ID ${contestId} not found` });
+    }
+
+    existingContestDescription.isDeleted = true;
+    contest.contestDescription = null;
+    await existingContestDescription.save();
+    await contest.save();
+
+    res.status(200).json({ success: true, message: 'Contest description deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get contest description for given contest
+router.get('/get-contest-description/:contestId', async (req, res) => {
+  try {
+    const { contestId } = req.params;
+
+    const contest = await Contest.findById(contestId);
+    if (!contest) {
+      return res.status(404).json({ error: 'Contest not found' });
+    }
+    
+    const contestDescription = await ContestDescription.findById(contest.contestDescription);
+
+    if (!contestDescription || contestDescription.isDeleted) {
+      return res.status(404).json({ error: `Contest description with ID ${contestId} not found` });
+    }
+
+    res.status(200).json({ success: true, contestDescription });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 module.exports = router;
