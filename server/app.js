@@ -23,6 +23,7 @@ const reactionsRoutes = require('../server/routes/reactionsRoutes')
 const teamRoutes = require('../server/routes/teamRoutes')
 const inviteRoutes = require('../server/routes/inviteRoutes')
 const contestRoutes = require('../server/routes/contestRoutes')
+const contestDescriptionRoutes = require('../server/routes/contestDescriptionRoutes')
 const notificationRoutes = require('../server/routes/notificationRoutes')
 const friend = require('./models/FriendSchema')
 const app = express();
@@ -91,6 +92,7 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' })); // <- Parses UR
   //app.use('/api/notification',notificationRoutes)
 
   app.use('/api/contest', contestRoutes)
+  app.use('/api/contest-description', contestDescriptionRoutes)
 
 app.use(errorController); // <- Error Handling Middleware
 
