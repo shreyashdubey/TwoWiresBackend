@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
   confirmPassword: { type: String, required: false },
   teams: [{type: mongoose.Schema.Types.ObjectId, ref: 'TeamSchema'}],
   authouredContests: [{type: mongoose.Schema.Types.ObjectId, ref: 'ContestSchema'}],
+  submissions: [{type: mongoose.Schema.Types.ObjectId, ref: 'SubmissionSchema'}],
 });
 
 // Hash and salt the password before saving the user

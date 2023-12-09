@@ -5,6 +5,7 @@ const { check, validationResult } = require('express-validator');
 const path = require('path');
 const mongoose = require('mongoose')
 const User = require('../models/UserSchema');
+const Team = require('../models/TeamSchema')
 const Contest = require('../models/ContestSchema');
 const ContestDescription = require('../models/ContestDescriptionSchema');
 
@@ -147,5 +148,66 @@ router.get('/get-contest-description/:contestId', async (req, res) => {
   }
 });
 
+// Add participant to a contest
+router.post('/add-participant/:contestId', async (req, res) => {
+  try {
+    const { contestId } = req.params;
+    const { userId, teamId } = req.body;
 
+    if ((!userId && !teamId) || (userId && teamId)) {
+      return res.status(400).json({ error: 'Provide either userId or teamId' });
+    }
+    if(userId){
+      const userExists = await User.findById(owner);
+      if (!userExists) {
+        return res.status(404).json({ error: 'User to add as participant not found' });
+      }
+    }
+    if(teamId){
+      const teamExists = await Team.findById(teamId);
+      if (!teamExists || teamExists.isDeleted) {
+        return res.status(404).json({ error: 'Team not found' });
+      }
+    }
+    const contest = await Contest.findById(contestId);
+    if (!contest) {
+      return res.status(404).json({ error: 'Contest not found' });
+    }
+
+    if(!contest.contestDescription){
+      return res.status(404).json({ error: 'Contest Description not found' });
+    }
+
+    // Find the contest description by contestId
+    const contestDescription = await ContestDescription.findById(contest.contestDescription);
+
+    // Check if the contest description exists
+    if (!contestDescription) {
+      return res.status(404).json({ error: 'Contest description not found' });
+    }
+
+    // Check if the user or team is already a participant
+    const isUserAlreadyParticipant = contestDescription.participants.some(participant => participant.user?.toString() === userId);
+    const isTeamAlreadyParticipant = contestDescription.participants.some(participant => participant.team?.toString() === teamId);
+
+    if (isUserAlreadyParticipant || isTeamAlreadyParticipant) {
+      return res.status(400).json({ error: 'User or team is already a participant' });
+    }
+
+    // Add the user or team to the participants array
+    if (userId) {
+      contestDescription.participants.push({ user: userId });
+    } else {
+      contestDescription.participants.push({ team: teamId });
+    }
+
+    // Save the updated contest description
+    await contestDescription.save();
+
+    res.status(200).json({ message: 'Participant added successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 module.exports = router;
