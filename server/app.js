@@ -33,7 +33,7 @@ const validateToken = require('./utils/validateToken');
 // const io = initializeSocket(server);
 
 // MIDLEWARES ->>
-app.use(cors({origin: process.env.REMOTE })); // <- CORS configuration, in case if you wanted to implemented authorization
+app.use(cors()); // <- CORS configuration, in case if you wanted to implemented authorization
 //app.options(process.env.REMOTE, cors());
 
 
