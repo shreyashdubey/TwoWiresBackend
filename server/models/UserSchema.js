@@ -9,7 +9,6 @@ const userSchema = new mongoose.Schema({
   skill: [{type: mongoose.Schema.Types.ObjectId, ref: 'SkillSchema'}],
   education: [{type: mongoose.Schema.Types.ObjectId, ref: 'EducationSchema' }],
   experience: [{type: mongoose.Schema.Types.ObjectId, ref: 'ExperienceSchema'}],
-  skills: [{ type: String }],
   confirmPassword: { type: String, required: false },
   teams: [{type: mongoose.Schema.Types.ObjectId, ref: 'TeamSchema'}],
   authouredContests: [{type: mongoose.Schema.Types.ObjectId, ref: 'ContestSchema'}],

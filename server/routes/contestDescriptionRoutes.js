@@ -158,7 +158,7 @@ router.post('/add-participant/:contestId', async (req, res) => {
       return res.status(400).json({ error: 'Provide either userId or teamId' });
     }
     if(userId){
-      const userExists = await User.findById(owner);
+      const userExists = await User.findById(userId);
       if (!userExists) {
         return res.status(404).json({ error: 'User to add as participant not found' });
       }

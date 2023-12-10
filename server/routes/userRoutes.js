@@ -184,10 +184,6 @@ router.delete("/logout", (req,res)=>{
   res.status(204).send("Logged out!")
   })
   
-
-
-
-
 // Add Education 
 router.post(
   '/add-education',
@@ -612,4 +608,44 @@ router.get('/get-all-skill', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Get All Teams of User
+// Get All Teams of User
+router.get('/get-all-teams', async (req, res) => {
+  try {
+    const { userId, page, pageSize } = req.query;
+
+    const user = await User.findById(userId).select('teams').populate('teams');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const pageOptions = {
+      page: parseInt(page, 10) || 1, // Current page (default to 1)
+      pageSize: parseInt(pageSize, 10) || 10, // Number of items per page (default to 10)
+    };
+
+    const skip = (pageOptions.page - 1) * pageOptions.pageSize;
+
+    const teams = user.teams || []; // Handle the case where user.teams might be null
+
+    const paginatedTeams = teams.slice(skip, skip + pageOptions.pageSize);
+
+    const totalTeamsEntries = teams.length;
+    const totalPages = Math.ceil(totalTeamsEntries / pageOptions.pageSize);
+
+    res.status(200).json({
+      teamEntries: paginatedTeams,
+      page: pageOptions.page,
+      pageSize: pageOptions.pageSize,
+      totalPages,
+      totalTeamsEntries,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
 module.exports = router;
