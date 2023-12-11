@@ -81,7 +81,7 @@ router.post('/add-contest-creator/:contestId', async (req, res) => {
 // Edit contest route
 router.put('/edit-contest/:contestId', async (req, res) => {
   try {
-    const { contestName, contestOrganizer, startTime, endTime, isPublished, prize } = req.body;
+    const { contestName, contestOrganizer, startTime, endTime, isPublished, prize, isSubmitted } = req.body;
     const { contestId } = req.params;
 
     // Check if the contest with the provided ID exists
@@ -93,6 +93,14 @@ router.put('/edit-contest/:contestId', async (req, res) => {
 
     if (contestName && !contestName.trim()) {
       return res.status(400).json({ error: 'Contest name cannot be empty or contain only whitespace' });
+    }
+    if(isSubmitted){
+      if(existingContest.isSubmitted){
+        return res.status(400).json({ error: 'Contest already submitted' });
+      }
+      else{
+        existingContest.isSubmitted = true;
+      }
     }
     if(isPublished && existingContest.contestDescription){
       existingContest.isPublished = isPublished || existingContest.isPublished;
@@ -229,7 +237,7 @@ router.get('/get-all-submitted-contests', async (req, res) => {
 
     const skip = (pageOptions.page - 1) * pageOptions.pageSize;
 
-    const contests = await Contest.find({ isDeleted: false, isPublished: false })
+    const contests = await Contest.find({ isDeleted: false, isPublished: false, isSubmitted: true })
       .sort({ createdAt: 'desc' }) // Sort by creation date in descending order
       .skip(skip)
       .limit(pageOptions.pageSize)

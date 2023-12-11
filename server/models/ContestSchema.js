@@ -10,6 +10,7 @@ const contestSchema = new mongoose.Schema(
     isDeleted: { type: Boolean, default: false },
     startTime: { type: Date, required: false },
     endTime: { type: Date, required: false },
+    isSubmitted: {type: Boolean, default: false},
     isPublished: { type: Boolean, default: false },
     prize: { type: String },
   },
