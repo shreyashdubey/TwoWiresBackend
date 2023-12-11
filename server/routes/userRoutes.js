@@ -614,7 +614,8 @@ router.get('/get-all-teams', async (req, res) => {
   try {
     const { userId, page, pageSize } = req.query;
 
-    const user = await User.findById(userId).select('teams').populate('teams');
+    const user = await User.findById(userId).select('teams').populate('teams', '_id teamName');
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -629,7 +630,7 @@ router.get('/get-all-teams', async (req, res) => {
     const teams = user.teams || []; // Handle the case where user.teams might be null
 
     const paginatedTeams = teams.slice(skip, skip + pageOptions.pageSize);
-
+  
     const totalTeamsEntries = teams.length;
     const totalPages = Math.ceil(totalTeamsEntries / pageOptions.pageSize);
 

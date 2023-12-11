@@ -94,13 +94,14 @@ router.put('/edit-contest/:contestId', async (req, res) => {
     if (contestName && !contestName.trim()) {
       return res.status(400).json({ error: 'Contest name cannot be empty or contain only whitespace' });
     }
-
+    if(isPublished && existingContest.contestDescription){
+      existingContest.isPublished = isPublished || existingContest.isPublished;
+    }
     // Update the contest fields
     existingContest.contestName = contestName || existingContest.contestName;
     existingContest.contestOrganizer = contestOrganizer || existingContest.contestOrganizer;
     existingContest.startTime = startTime || existingContest.startTime;
     existingContest.endTime = endTime || existingContest.endTime;
-    existingContest.isPublished = isPublished || existingContest.isPublished;
     existingContest.prize = prize || existingContest.prize;
 
     // Save the updated contest
