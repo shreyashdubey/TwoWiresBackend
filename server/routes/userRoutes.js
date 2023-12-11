@@ -9,8 +9,7 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 const { createSecretToken } = require("../utils/SecretToken");
 
-router.post(
-  '/signup',
+router.post('/signup',
   [
     check('email').isEmail().withMessage('Invalid email address'),
     check('password')
@@ -38,9 +37,9 @@ router.post(
         confirmPassword
       });
       await user.save();
-     res
-      .status(201)
-      .json({ message: "User signed in successfully", success: true, user });
+      const accessToken = generateAccessToken ({user: user})
+      const refreshToken = generateRefreshToken ({user: user})
+      res.status(201).json ({accessToken: accessToken, refreshToken: refreshToken})
       next();
     } catch (error) {
       res.status(500).json({ errors: [{ msg: 'Server error' }] });
@@ -49,8 +48,7 @@ router.post(
 );
 
 // POST route for user login
-router.post(
-  '/login',
+router.post('/login',
   [
     check('email').isEmail().withMessage('Invalid email address'),
     check('password').notEmpty().withMessage('Password is required'),
