@@ -32,9 +32,21 @@ const feed = require('./routes/feedRoutes');
 const validateToken = require('./utils/validateToken');
 // const io = initializeSocket(server);
 
-// MIDLEWARES ->>
-app.use(cors()); // <- CORS configuration, in case if you wanted to implemented authorization
-//app.options(process.env.REMOTE, cors());
+const corsOptions = {
+  origin: '*',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+
+
+// // MIDLEWARES ->>
+// app.use(cors()); // <- CORS configuration, in case if you wanted to implemented authorization
+// //app.options(process.env.REMOTE, cors());
 
 
 app.use((req, res, next) => {	// <- Serves req time and cookies

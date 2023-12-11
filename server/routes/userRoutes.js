@@ -610,7 +610,6 @@ router.get('/get-all-skill', async (req, res) => {
 });
 
 // Get All Teams of User
-// Get All Teams of User
 router.get('/get-all-teams', async (req, res) => {
   try {
     const { userId, page, pageSize } = req.query;
