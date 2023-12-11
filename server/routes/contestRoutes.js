@@ -201,7 +201,7 @@ router.get('/get-all-contests', async (req, res) => {
       .limit(pageOptions.pageSize)
       .populate('contestCreator', 'username') // Assuming 'username' is a field in your User model
 
-    const totalContests = await Contest.countDocuments({ isDeleted: false });
+    const totalContests = await Contest.countDocuments({ isDeleted: false, isPublished: true });
 
     const totalPages = Math.ceil(totalContests / pageOptions.pageSize);
 
@@ -217,4 +217,36 @@ router.get('/get-all-contests', async (req, res) => {
   }
 });
 
+router.get('/get-all-submitted-contests', async (req, res) => {
+  try {
+    const { page, pageSize } = req.query;
+
+    const pageOptions = {
+      page: parseInt(page, 10) || 1,
+      pageSize: parseInt(pageSize, 10) || 10,
+    };
+
+    const skip = (pageOptions.page - 1) * pageOptions.pageSize;
+
+    const contests = await Contest.find({ isDeleted: false, isPublished: false })
+      .sort({ createdAt: 'desc' }) // Sort by creation date in descending order
+      .skip(skip)
+      .limit(pageOptions.pageSize)
+      .populate('contestCreator', 'username') // Assuming 'username' is a field in your User model
+
+    const totalContests = await Contest.countDocuments({ isDeleted: false, isPublished: false });
+
+    const totalPages = Math.ceil(totalContests / pageOptions.pageSize);
+
+    res.status(200).json({
+      contests,
+      page: pageOptions.page,
+      pageSize: pageOptions.pageSize,
+      totalPages,
+      totalContests,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 module.exports = router;
