@@ -192,6 +192,21 @@ router.get('/get-contests-by-user/:user', async (req, res) => {
   }
 });
 
+// Get contest by Id
+router.get('/get-contest-by-id', async (req, res) => {
+  try{
+    const { contestId } = req.query;
+    const contest = await Contest.findById(contestId);
+    if(!contest){
+      res.status(404).json({error: 'No contest found with such id'});
+    }
+    res.status(200).json({success: true, contest: contest });
+  }
+  catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Get all contests - sorted by date (desc) and published
 router.get('/get-all-contests', async (req, res) => {
   try {
