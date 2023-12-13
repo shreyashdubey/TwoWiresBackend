@@ -62,7 +62,7 @@ router.post('/create-submissions', async (req, res) => {
 });
 
 // Get all submissions for a contest with pagination
-router.get('/get-submissions/:contestId/:page/:pageSize', async (req, res) => {
+router.get('/get-submissions', async (req, res) => {
   try {
     const { contestId, page, pageSize } = req.query;
 
@@ -77,9 +77,8 @@ router.get('/get-submissions/:contestId/:page/:pageSize', async (req, res) => {
     const submissions = await Submission.find({ contest: contestId, isDeleted: false })
       .skip(skip)
       .limit(pageOptions.pageSize)
-      .populate('contest') // Populate the contest field with details if needed
-      .populate('participant.user') // Populate the user field with details if needed
-      .populate('participant.team'); // Populate the team field with details if needed
+      .populate('participant.user', 'username') // Populate the user field with details if needed
+      .populate('participant.team', 'teamName'); // Populate the team field with details if needed
 
     const totalSubmissions = await Submission.countDocuments({ contest: contestId, isDeleted: false });
 
