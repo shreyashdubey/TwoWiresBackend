@@ -29,18 +29,21 @@ router.post('/create-submissions', async (req, res) => {
     if ((!userId && !teamId) || (userId && teamId)) {
       return res.status(400).json({ error: 'Provide either userId or teamId' });
     }
+
+    const userExists = await User.findById(userId);
     if(userId){
-      const userExists = await User.findById(userId);
       if (!userExists) {
         return res.status(404).json({ error: 'User to add as participant not found' });
       }
     }
+
+    const teamExists = await Team.findById(teamId);
     if(teamId){
-      const teamExists = await Team.findById(teamId);
       if (!teamExists || teamExists.isDeleted) {
         return res.status(404).json({ error: 'Team not found' });
       }
     }
+
     // Create a new submission instance
     const newSubmission = new Submission({
       contest: contestId,
@@ -53,6 +56,15 @@ router.post('/create-submissions', async (req, res) => {
 
     // Save the submission to the database
     const savedSubmission = await newSubmission.save();
+
+    if(userExists){
+      
+    }
+    if(teamExists && !teamExists.isDeleted){
+      
+    }
+
+
 
     res.status(201).json(savedSubmission);
   } catch (error) {

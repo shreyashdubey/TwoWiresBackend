@@ -12,6 +12,7 @@ const teamSchema = new mongoose.Schema({
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   teamName: {type: String, required: true, unique: true},
   contest: [{type: mongoose.Schema.Types.ObjectId, ref: 'ContestSchema', required: true}],
+  submissions: [{type: mongoose.Schema.Types.ObjectId, ref: 'SubmissionSchema'}],
   members: [{
       user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
       username: {type: String, required: true},
