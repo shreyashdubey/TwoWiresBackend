@@ -90,8 +90,7 @@ router.post('/signup',
       });
       await user.save();
       const accessToken = generateAccessToken ({user: user})
-      const refreshToken = generateRefreshToken ({user: user})
-      res.status(201).json ({accessToken: accessToken, refreshToken: refreshToken})
+      res.status(201).json ({accessToken: accessToken})
       next();
     } catch (error) {
       res.status(500).json({ errors: [{ msg: 'Server error' }] });
@@ -135,8 +134,7 @@ router.post('/login',
       }
       
       const accessToken = generateAccessToken ({user: user})
-      const refreshToken = generateRefreshToken ({user: user})
-      res.json ({accessToken: accessToken, refreshToken: refreshToken})
+      res.json ({accessToken: accessToken})
     } catch (error) {
       res.status(500).json({ errors: [{ msg: 'Server error' }] });
     }
