@@ -4,24 +4,34 @@ const jwt = require('jsonwebtoken');
 
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
+  username: { type: String, required: true },
   password: { type: String, required: true },
+  confirmPassword: { type: String, required: false },
+  isMailPublic: {type: Boolean, default: false},
+  birthdate: {type: Date},
+  
   firstName: {type: String},
   middleName: {type: String},
   lastName: {type: String},
-  proficientLanguages: [{type: String}],
-  isMailPublic: {type: Boolean},
-  birthdate: {type: Date},
-  currentLocation: {type: String},
-  currentIndustry: {type: String},
+  about: {type: String},
+  tagLine: {type: String},
   currentStatus: {type: String},
-  username: { type: String, required: true },
+  
+  currentIndustry: {type: String},
   skill: [{type: mongoose.Schema.Types.ObjectId, ref: 'SkillSchema'}],
   education: [{type: mongoose.Schema.Types.ObjectId, ref: 'EducationSchema' }],
   experience: [{type: mongoose.Schema.Types.ObjectId, ref: 'ExperienceSchema'}],
-  confirmPassword: { type: String, required: false },
+
+  proficientLanguages: [{type: String}],
+  currentLocation: {type: String},
   teams: [{type: mongoose.Schema.Types.ObjectId, ref: 'TeamSchema'}],
   authouredContests: [{type: mongoose.Schema.Types.ObjectId, ref: 'ContestSchema'}],
   submissions: [{type: mongoose.Schema.Types.ObjectId, ref: 'SubmissionSchema'}],
+  publications: [{type: String}],
+  projects: [{type: String}], 
+  github: {type: String},
+  website: {type: String},
+  articles: {type: String},
 });
 
 // Hash and salt the password before saving the user
