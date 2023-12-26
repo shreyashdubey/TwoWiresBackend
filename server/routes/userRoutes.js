@@ -11,8 +11,8 @@ const { createSecretToken } = require("../utils/SecretToken");
 const otpGenerator = require('otp-generator')
 const OneSignal = require('@onesignal/node-onesignal');
 
-const ONE_SIGNAL_APP_ID = 'c57aeb8a-7429-44b7-bc5e-519f486a355a';
-const ONE_SIGNAL_API_KEY = 'MjlhOGFjMDUtZmIyZi00MzFiLWFkMmQtZjRkYWQwZDA2ZDM2';
+const ONE_SIGNAL_APP_ID = '12fedbe1-46f0-44fb-893a-b765cbabf575';
+const ONE_SIGNAL_API_KEY = 'ZDE2YzZlMTQtZGI1Mi00NWI2LWFhNmYtZDM5YjQ0MWJmZTY1';
 
 function generateOTP() {
   // Your OTP generation logic here
