@@ -121,7 +121,7 @@ router.put('/accept/:inviteId', async (req, res) => {
         );
 
         
-        // Create a notification for the receiver
+        // Create a notification for the sender
         const notification = new Notification({
         user: senderUser,
         notificationType: NotificationTypes.TEAM_INVITE_ACCEPTED, 

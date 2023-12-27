@@ -5,6 +5,7 @@ const path = require('path');
 const mongoose = require('mongoose')
 const User = require('../models/UserSchema');
 const Contest = require('../models/ContestSchema');
+const NotificationTypes = require('../enums/NotificationTypes');
 
 // Create a new contest
 router.post('/create-contest', async (req, res) => {
@@ -100,6 +101,14 @@ router.put('/edit-contest/:contestId', async (req, res) => {
       }
       else{
         existingContest.isSubmitted = true;
+        const notification = new Notification({
+          user: contestOrganizer,
+          notificationType: NotificationTypes.CONTEST_SUBMITTED_FOR_REVIEW, 
+          sourceId: existingContest, 
+          isRead: false,
+          isDeleted: false,
+          });
+          await notification.save();
       }
     }
     if(isPublished && existingContest.contestDescription){
