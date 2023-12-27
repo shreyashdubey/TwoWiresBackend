@@ -13,6 +13,7 @@ const OneSignal = require('@onesignal/node-onesignal');
 
 const ONE_SIGNAL_APP_ID = '12fedbe1-46f0-44fb-893a-b765cbabf575';
 const ONE_SIGNAL_API_KEY = 'ZDE2YzZlMTQtZGI1Mi00NWI2LWFhNmYtZDM5YjQ0MWJmZTY1';
+let otp = 0 ;
 
 function generateOTP() {
   // Your OTP generation logic here
@@ -21,7 +22,7 @@ function generateOTP() {
 
 async function sendVerificationEmail(email , username) {
   try {
-    const otp = generateOTP();
+     otp = generateOTP();
 
     // OneSignal API client setup
     const configuration = OneSignal.createConfiguration({
@@ -134,6 +135,30 @@ router.post('/login',
       const accessToken = generateAccessToken ({user: user})
       res.json ({accessToken: accessToken})
     } catch (error) {
+      res.status(500).json({ errors: [{ msg: 'Server error' }] });
+    }
+  }
+);
+
+
+router.post(
+  '/verification',async (req, res) => {
+
+    
+    console.log(req.body)
+    const { otp_user} = req.body;
+
+    try {
+    console.log('otp' , otp)
+    console.log('otp_user' , otp_user)
+    if(otp === otp_user){
+      res.status(201).json({ message: 'Signup SuccessFull', success: true });
+    }
+    else{
+      res.status(201).json({ message: 'Wrong otp', success: false });
+    }
+    } catch (error) {
+      console.error(error);
       res.status(500).json({ errors: [{ msg: 'Server error' }] });
     }
   }
