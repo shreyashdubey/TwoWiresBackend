@@ -58,6 +58,7 @@ router.post('/create', async (req, res) => {
         sourceId: savedInvite, 
         isRead: false,
         isDeleted: false,
+        sourceUserName: senderUser.username,
       });
   
        await notification.save();
@@ -128,6 +129,7 @@ router.put('/accept/:inviteId', async (req, res) => {
         sourceId: savedInvite, 
         isRead: false,
         isDeleted: false,
+        sourceUserName: receiverUser.username,
         });
         await notification.save();
 

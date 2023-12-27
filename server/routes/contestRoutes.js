@@ -304,6 +304,7 @@ router.put('/review-contest', async (req, res) => {
         sourceId: existingContest, 
         isRead: false,
         isDeleted: false,
+        sourceContestName: existingContest.contestName,
       });
       await notification.save();
     }
@@ -341,6 +342,7 @@ router.put('/publish-contest', async (req, res) => {
         sourceId: existingContest, 
         isRead: false,
         isDeleted: false,
+        sourceContestName: existingContest.contestName,
       });
       await notification.save();
     }
