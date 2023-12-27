@@ -643,5 +643,48 @@ router.get('/get-all-teams', async (req, res) => {
 });
 
 
+// Add Proficient Languages 
+router.post('/add-language', async (req, res) => {
+  const {userId, language} = req.body;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (language) {
+      user.proficientLanguages.push(req.body.language);
+    } else {
+      return res.status(400).json({ message: 'Language not provided in the request body' });
+    }
+    await user.save();
+    res.status(200).json({ message: 'Language added successfully', username: user.username, proficientLanguages: user.proficientLanguages });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// DELETE endpoint to remove a language from proficientLanguages
+router.delete('/delete-language/:userId', async (req, res) => {
+  const userId = req.params.userId;
+  const {language} = req.body;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const languageIndex = user.proficientLanguages.indexOf(language);
+    if (languageIndex === -1) {
+      return res.status(404).json({ message: 'Language not found in proficientLanguages' });
+    }
+    user.proficientLanguages.splice(languageIndex, 1);
+    await user.save();
+    res.json({ message: 'Language removed successfully', username: user.username, proficientLanguages: user.proficientLanguages });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
 
 module.exports = router;

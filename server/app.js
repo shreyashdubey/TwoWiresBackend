@@ -102,7 +102,7 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' })); // <- Parses UR
   
   app.use('/api/team', teamRoutes)
   app.use('/api/invite',inviteRoutes)
-  //app.use('/api/notification',notificationRoutes)
+  app.use('/api/notification',notificationRoutes)
 
   app.use('/api/contest', contestRoutes)
   app.use('/api/contest-description', contestDescriptionRoutes)
