@@ -3,7 +3,7 @@ const publicRoutes = ['/api/users/login','/api/users/signup']
 require("dotenv").config();
 
 function validateToken(req, res, next) {
-
+    console.log(req.url)
     if(publicRoutes.includes(req.url)){
        next();
     }

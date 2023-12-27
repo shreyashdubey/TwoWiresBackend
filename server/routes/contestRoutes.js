@@ -6,6 +6,7 @@ const mongoose = require('mongoose')
 const User = require('../models/UserSchema');
 const Contest = require('../models/ContestSchema');
 const NotificationTypes = require('../enums/NotificationTypes');
+const Notification = require('../models/NotificationSchema');
 
 // Create a new contest
 router.post('/create-contest', async (req, res) => {
@@ -283,10 +284,10 @@ router.get('/get-all-submitted-contests', async (req, res) => {
 });
 
 // Make contest Under Review
-router.put('/review-contest/:contestId', async (req, res) => {
+router.put('/review-contest', async (req, res) => {
   try {
-    const { contestId } = req.params;
-
+    const { contestId } = req.query;
+    console.log(contestId)
     // Check if the contest with the provided ID exists
     const existingContest = await Contest.findById(contestId);
 
@@ -320,9 +321,9 @@ router.put('/review-contest/:contestId', async (req, res) => {
 });
 
 // Publish contest
-router.put('/publish-contest/:contestId', async (req, res) => {
+router.put('/publish-contest', async (req, res) => {
   try {
-    const { contestId } = req.params;
+    const { contestId } = req.query;
 
     // Check if the contest with the provided ID exists
     const existingContest = await Contest.findById(contestId);
