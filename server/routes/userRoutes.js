@@ -144,13 +144,11 @@ router.post('/login',
 router.post(
   '/verification',async (req, res) => {
 
-    
-    console.log(req.body)
+  
     const { otp_user} = req.body;
 
     try {
     console.log('otp' , otp)
-    console.log('otp_user' , otp_user)
     if(otp === otp_user){
       res.status(201).json({ message: 'Signup SuccessFull', success: true });
     }
