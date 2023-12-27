@@ -140,9 +140,9 @@ router.put('/accept/:inviteId', async (req, res) => {
 });
 
 // TODO: If the user  is already invited delete him from more places
-router.get('/delete/:inviteId', async (req, res) => {
+router.delete('/delete/:inviteId', async (req, res) => {
   const inviteId = req.params.inviteId;
-  const invite = await Notification.findById(inviteId);
+  const invite = await Invite.findById(inviteId);
   
   if (!invite) {
     return res.status(404).json({ error: 'Invite not found' });
