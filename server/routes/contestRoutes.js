@@ -78,7 +78,6 @@ router.post('/add-contest-creator/:contestId', async (req, res) => {
     }
   });
   
-
 // Edit contest route
 router.put('/edit-contest/:contestId', async (req, res) => {
   try {
@@ -280,6 +279,43 @@ router.get('/get-all-submitted-contests', async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Make contest Under Review
+router.put('/review-contest/:contestId', async (req, res) => {
+  try {
+    const { contestId } = req.params;
+
+    // Check if the contest with the provided ID exists
+    const existingContest = await Contest.findById(contestId);
+
+    if (!existingContest) {
+      return res.status(404).json({ error: `Contest with ID ${contestId} not found` });
+    }
+
+    
+    if(existingContest.isSubmitted){
+      existingContest.isUnderReview = true
+      const notification = new Notification({
+        user: contestOrganizer,
+        notificationType: NotificationTypes.CONTEST_UNDER_REVIEW, 
+        sourceId: existingContest, 
+        isRead: false,
+        isDeleted: false,
+      });
+      await notification.save();
+    }
+    else{
+      res.status(400).json({ error: "Contest is not submitted" });
+    }
+    
+    // Save the updated contest
+    const updatedContest = await existingContest.save();
+
+    res.status(200).json({ success: true, message: 'Contest updated successfully', contest: updatedContest });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
 module.exports = router;
