@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   confirmPassword: { type: String, required: false },
   isMailPublic: {type: Boolean, default: false},
-  birthdate: {type: Date},
+  birthDate: {type: Date},
   
   firstName: {type: String},
   middleName: {type: String},
@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
   projects: [{type: String}], 
   github: {type: String},
   website: {type: String},
-  articles: {type: String},
+  articles: [{type: String}],
 });
 
 // Hash and salt the password before saving the user

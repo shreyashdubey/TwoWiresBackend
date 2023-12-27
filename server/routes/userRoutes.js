@@ -665,7 +665,7 @@ router.post('/add-language', async (req, res) => {
   }
 });
 
-// DELETE endpoint to remove a language from proficientLanguages
+// DELETE language from proficientLanguages
 router.delete('/delete-language/:userId', async (req, res) => {
   const userId = req.params.userId;
   const {language} = req.body;
@@ -681,6 +681,68 @@ router.delete('/delete-language/:userId', async (req, res) => {
     user.proficientLanguages.splice(languageIndex, 1);
     await user.save();
     res.json({ message: 'Language removed successfully', username: user.username, proficientLanguages: user.proficientLanguages });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
+// Add Proficient Languages 
+router.put('/update-user-details', async (req, res) => {
+  const {userId, firstName, middleName, lastName, about, tagLine, currentStatus, currentIndustry, currentLocation, isMailPublic, birthDate} = req.body;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if(firstName){
+      user.firstName = firstName
+    }
+    if(middleName){
+      user.middleName = middleName
+    }
+    if(lastName){
+      user.lastName = lastName
+    }
+    if(about){
+      user.about = about
+    }
+    if(tagLine){
+      user.tagLine = tagLine
+    }
+    if(currentStatus){
+      user.currentStatus = currentStatus
+    }
+    if(currentIndustry){
+      user.currentIndustry = currentIndustry
+    }
+    if(currentLocation){
+      user.currentLocation = currentLocation
+    }
+    if(isMailPublic){
+      user.isMailPublic = isMailPublic
+    }
+    if(birthDate){
+      user.birthDate = birthDate
+    }
+
+    await user.save();
+    res.status(200).json({ message: 'Language added successfully',
+      username: user.username, 
+      firstName: user.firstName,
+      middleName: user.middleName,
+      lastName: user.lastName,
+      about: user.about,
+      tagLine: user.tagLine,
+      currentStatus: user.currentStatus,
+      currentIndustry: user.currentIndustry,
+      currentLocation: user.currentLocation, 
+      isMailPublic: user.isMailPublic,
+      birthDate: user.birthDate
+    });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal Server Error' });
