@@ -19,7 +19,7 @@ function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-async function sendVerificationEmail(email) {
+async function sendVerificationEmail(email , username) {
   try {
     const otp = generateOTP();
 
@@ -40,14 +40,15 @@ async function sendVerificationEmail(email) {
     const response = await client.createNotification({
       app_id: ONE_SIGNAL_APP_ID,
       include_email_tokens: [email], // Send to a specific email
-      template_id: 'bf0b9a65-33da-4e55-8c2a-dcce5a2d50c7', // Replace with your actual template ID
+      template_id: '4b534ecd-4b56-4c43-a411-0f3cf85c2a0c', // Replace with your actual template ID
       custom_data: {
         user: {
-          first_name: 'George', // Replace with the user's first name
+          first_name: username, // Replace with the user's first name
+          email : email ,
         },
         verify: {
           URL: `https://sourcedfounder.com/users/confirm?confirmation_token=${otp}`,
-          otp,
+          otp :otp,
         },
       },
     });
@@ -76,7 +77,13 @@ router.post('/signup',
   ],
   async (req, res , next) => {
     const { email, password, username, confirmPassword } = req.body; 
-    
+    sendVerificationEmail(email , username)
+    .then((otp) => {
+      console.log('Verification email sent successfully. OTP:', otp);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
     try {
       let user = await User.findOne({ email });
       if (user) {
@@ -112,15 +119,6 @@ router.post('/login',
       return res.status(400).json({ errors: errors.array() });
     }
     const { email, password } = req.body;
-    sendVerificationEmail(email)
-    .then((otp) => {
-      console.log('Verification email sent successfully. OTP:', otp);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
-
-    
       let user = await User.findOne({ email });
 
       if (!user) {
