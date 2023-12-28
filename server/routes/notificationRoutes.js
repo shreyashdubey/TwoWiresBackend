@@ -43,6 +43,12 @@ router.get('/all', async (req, res) => {
     .skip(skip)
     .limit(pageOptions.pageSize);
 
+    // Mark all retrieved notifications as read
+    await Notification.updateMany(
+      { user: user, _id: { $in: notifications.map(notification => notification._id) } },
+      { $set: { isRead: true } }
+    );
+
     const totalNotifications = await Notification.countDocuments({ user: user, isDeleted: false});
 
     const totalPages = Math.ceil(totalNotifications / pageOptions.pageSize);
