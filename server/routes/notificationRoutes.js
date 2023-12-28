@@ -11,7 +11,7 @@ const validateToken = require('../utils/validateToken');
 const ReachabilityOptions = require('../enums/ReachabilityOptions');
 const CommentControl = require('../enums/CommentControl')
 // Update the saved notification
-router.put('/notification/:notificationId', async (req, res) => {
+router.put('/get-notification/:notificationId', async (req, res) => {
   try {
     const notificationId = req.params.notificationId;
     
@@ -39,6 +39,7 @@ router.get('/all', async (req, res) => {
     const skip = (pageOptions.page - 1) * pageOptions.pageSize;
     //TODO: Check if two calls to the same table be avoided
     const notifications = await Notification.find({user: user, isDeleted: false})
+    .sort({createdAt: -1})
     .skip(skip)
     .limit(pageOptions.pageSize);
 
@@ -89,7 +90,6 @@ router.put('/delete/:notificationId', async (req, res) => {
       return res.status(404).json({ error: 'Notification is already deleted' });
     }
     notification.isDeleted = true;
-    notification.updatedAt = new Date()
 
     const updatedNotification = await notification.save();
 
