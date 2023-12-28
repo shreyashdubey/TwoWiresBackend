@@ -6,11 +6,12 @@ const notificationSchema = new mongoose.Schema({
   sourceId: {type: mongoose.Schema.Types.ObjectId, required: true},
   isRead: {type: Boolean, required: true},
   isDeleted: {type: Boolean, required: true},
-  createdAt: {type: Date, default: Date.now,},
-  updatedAt: {type: Date, default: Date.now,},
   sourceUserName: {type: String},
   sourceTeamName: {type: String},
   sourceContestName: {type: String}
+},
+{
+  timestamps: true
 });
 
 const Notification = mongoose.model('Notification', notificationSchema);
