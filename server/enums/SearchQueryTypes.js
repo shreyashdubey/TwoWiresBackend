@@ -1,5 +1,5 @@
 const SearchQueryTypes = Object.freeze({
-    USERNAME: 'USERNAME',
+    USER_HANDLE: 'USER_HANDLE',
     FIRST_NAME: 'FIRST_NAME',
     MIDDLE_NAME: 'MIDDLE_NAME',
     LAST_NAME: 'LAST_NAME',

@@ -82,41 +82,41 @@ router.post('/login',
   }
 );
 
-router.get('/search', async (req, res) => {
-  const { profession, expertise, username } = req.query;
-  const query = {};
+// router.get('/search', async (req, res) => {
+//   const { profession, expertise, username } = req.query;
+//   const query = {};
 
-  if (!profession && !expertise && !username) {
-      return res.json({ message: 'You have not searched anything' });
-  }
+//   if (!profession && !expertise && !username) {
+//       return res.json({ message: 'You have not searched anything' });
+//   }
 
-  if (profession) {
-      query.profession = { $regex: new RegExp(profession, 'i') };
-  }
+//   if (profession) {
+//       query.profession = { $regex: new RegExp(profession, 'i') };
+//   }
 
-  if (expertise) {
-      query.expertise = { $regex: new RegExp(expertise, 'i') };
-  }
+//   if (expertise) {
+//       query.expertise = { $regex: new RegExp(expertise, 'i') };
+//   }
 
-  if (username) {
-      query.username = { $regex: new RegExp(username, 'i') };
-  }
+//   if (username) {
+//       query.username = { $regex: new RegExp(username, 'i') };
+//   }
 
-  try {
-      // Search for users based on the query
-      const users = await User.find(query, 'username profession expertise');
+//   try {
+//       // Search for users based on the query
+//       const users = await User.find(query, 'username profession expertise');
 
-      if (users.length === 0) {
-          return res.status(404).json({ message: 'No users found' });
-      }
+//       if (users.length === 0) {
+//           return res.status(404).json({ message: 'No users found' });
+//       }
 
-      // Return the user data based on the search criteria
-      res.json({ users });
-  } catch (error) {
-      console.error('User search error:', error);
-      res.status(500).json({ errors: [{ msg: 'Server error' }] });
-  }
-});
+//       // Return the user data based on the search criteria
+//       res.json({ users });
+//   } catch (error) {
+//       console.error('User search error:', error);
+//       res.status(500).json({ errors: [{ msg: 'Server error' }] });
+//   }
+// });
 
 
 router.get('/byId/:userId', async (req, res) => {
@@ -687,8 +687,7 @@ router.delete('/delete-language/:userId', async (req, res) => {
   }
 });
 
-
-// Add Proficient Languages 
+// Update User's details
 router.put('/update-user-details', async (req, res) => {
   const {userId, firstName, middleName, lastName, about, tagLine, currentStatus, currentIndustry, currentLocation, isMailPublic, birthDate} = req.body;
   try {
@@ -746,6 +745,30 @@ router.put('/update-user-details', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+router.get('/search', async (req, res) => {
+  const { type, query, limit } = req.query;
+
+  try {
+    let results = [];
+    switch (type) {
+      case 'FIRST_NAME':
+        results = await User.find({ firstName: { $regex: query, $options: 'i' } }, 'username firstName lastName _id').limit(parseInt(limit, 10) || 10);
+        break;
+      case 'USER_HANDLE':
+        results = await User.find({ username: { $regex: query, $options: 'i' } }, 'username firstName lastName _id').limit(parseInt(limit, 10) || 10);
+        break;
+      default:
+        res.status(400).json({ error: 'Invalid search type' });
+        return;
+    }
+
+    res.json({ results });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
