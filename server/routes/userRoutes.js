@@ -8,6 +8,59 @@ const Skill = require('../models/SkillSchema');
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 const { createSecretToken } = require("../utils/SecretToken");
+const otpGenerator = require('otp-generator')
+const OneSignal = require('@onesignal/node-onesignal');
+
+const ONE_SIGNAL_APP_ID = '12fedbe1-46f0-44fb-893a-b765cbabf575';
+const ONE_SIGNAL_API_KEY = 'ZDE2YzZlMTQtZGI1Mi00NWI2LWFhNmYtZDM5YjQ0MWJmZTY1';
+let otp = 0 ;
+
+function generateOTP() {
+  // Your OTP generation logic here
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+async function sendVerificationEmail(email , username) {
+  try {
+     otp = generateOTP();
+
+    // OneSignal API client setup
+    const configuration = OneSignal.createConfiguration({
+      appKey: ONE_SIGNAL_API_KEY,
+    });
+    const client = new OneSignal.DefaultApi(configuration);
+
+    // Customize your email message here
+    const emailMessage = `
+      Hey {{ message.custom_data.user.first_name | default: "there" }},
+      To join, verify your email with the One Time Password: 
+      ${otp}
+    `;
+
+    // Send verification email using OneSignal
+    const response = await client.createNotification({
+      app_id: ONE_SIGNAL_APP_ID,
+      include_email_tokens: [email], // Send to a specific email
+      template_id: '4b534ecd-4b56-4c43-a411-0f3cf85c2a0c', // Replace with your actual template ID
+      custom_data: {
+        user: {
+          first_name: username, // Replace with the user's first name
+          email : email ,
+        },
+        verify: {
+          URL: `https://sourcedfounder.com/users/confirm?confirmation_token=${otp}`,
+          otp :otp,
+        },
+      },
+    });
+    console.log('Verification email sent:', response);
+    return otp; // Return OTP to be stored or used for verification
+  } catch (error) {
+    console.error('Error sending verification email:', error);
+    throw error;
+  }
+}
+
 
 router.post('/signup',
   [
@@ -25,6 +78,13 @@ router.post('/signup',
   ],
   async (req, res , next) => {
     const { email, password, username, confirmPassword } = req.body; 
+    sendVerificationEmail(email , username)
+    .then((otp) => {
+      console.log('Verification email sent successfully. OTP:', otp);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
     try {
       let user = await User.findOne({ email });
       if (user) {
@@ -60,8 +120,6 @@ router.post('/login',
       return res.status(400).json({ errors: errors.array() });
     }
     const { email, password } = req.body;
-
-    
       let user = await User.findOne({ email });
 
       if (!user) {
@@ -82,42 +140,30 @@ router.post('/login',
   }
 );
 
-// router.get('/search', async (req, res) => {
-//   const { profession, expertise, username } = req.query;
-//   const query = {};
+router.post(
+  '/verification',async (req, res) => {
 
-//   if (!profession && !expertise && !username) {
-//       return res.json({ message: 'You have not searched anything' });
-//   }
+  
+    const { otp_user} = req.body;
 
-//   if (profession) {
-//       query.profession = { $regex: new RegExp(profession, 'i') };
-//   }
+    try {
+    console.log('otp' , otp)
+    if(otp === otp_user){
+      res.status(201).json({ message: 'Signup SuccessFull', success: true });
+    }
+    else{
+      res.status(201).json({ message: 'Wrong otp', success: false });
+    }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ errors: [{ msg: 'Server error' }] });
+    }
+  }
+);
 
-//   if (expertise) {
-//       query.expertise = { $regex: new RegExp(expertise, 'i') };
-//   }
-
-//   if (username) {
-//       query.username = { $regex: new RegExp(username, 'i') };
-//   }
-
-//   try {
-//       // Search for users based on the query
-//       const users = await User.find(query, 'username profession expertise');
-
-//       if (users.length === 0) {
-//           return res.status(404).json({ message: 'No users found' });
-//       }
-
-//       // Return the user data based on the search criteria
-//       res.json({ users });
-//   } catch (error) {
-//       console.error('User search error:', error);
-//       res.status(500).json({ errors: [{ msg: 'Server error' }] });
-//   }
-// });
-
+router.get('/search', async (req, res) => {
+  const { profession, expertise, username } = req.query;
+  const query = {};
 
 router.get('/byId/:userId', async (req, res) => {
   const userId = req.params.userId;
