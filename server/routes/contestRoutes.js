@@ -82,7 +82,7 @@ router.post('/add-contest-creator/:contestId', async (req, res) => {
 // Edit contest route
 router.put('/edit-contest/:contestId', async (req, res) => {
   try {
-    const { contestName, contestOrganizer, startTime, endTime, isPublished, prize, isSubmitted } = req.body;
+    const { contestName, contestCreator, startTime, endTime, isPublished, prize, isSubmitted } = req.body;
     const { contestId } = req.params;
 
     // Check if the contest with the provided ID exists
@@ -102,7 +102,7 @@ router.put('/edit-contest/:contestId', async (req, res) => {
       else{
         existingContest.isSubmitted = true;
         const notification = new Notification({
-          user: contestOrganizer,
+          user: contestCreator,
           notificationType: NotificationTypes.CONTEST_SUBMITTED_FOR_REVIEW, 
           sourceId: existingContest, 
           isRead: false,
