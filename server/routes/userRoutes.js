@@ -61,7 +61,6 @@ async function sendVerificationEmail(email , username) {
   }
 }
 
-
 router.post('/signup',
   [
     check('email').isEmail().withMessage('Invalid email address'),
@@ -161,9 +160,6 @@ router.post(
   }
 );
 
-router.get('/search', async (req, res) => {
-  const { profession, expertise, username } = req.query;
-  const query = {};
 
 router.get('/byId/:userId', async (req, res) => {
   const userId = req.params.userId;
@@ -687,7 +683,6 @@ router.get('/get-all-teams', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // Add Proficient Languages 
 router.post('/add-language', async (req, res) => {
