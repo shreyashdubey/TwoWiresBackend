@@ -113,6 +113,7 @@ router.post('/login',
   ],
   async (req, res , next) => {
     try {
+      console.log("gg")
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.log("validationResult Error")
@@ -120,13 +121,12 @@ router.post('/login',
     }
     const { email, password } = req.body;
       let user = await User.findOne({ email });
-
       if (!user) {
         return res.status(401).json({ errors: [{ msg: 'Invalid credentials' }] });
       }
-
+      
       const isMatch = await bcrypt.compare(password, user.password);
-
+      
       if (!isMatch) {
         return res.status(401).json({ errors: [{ msg: 'Invalid credentials' }] });
       }
@@ -184,7 +184,7 @@ router.get('/byName/:userName', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
     const userId = await user[0]._id;
-    res.json({ userName, userId});
+    res.json({ userName, userId, firstName: user[0].firstName, lastName: user[0].lastName, middleName: user[0].middleName, education: user[0].education});
   } catch (error) {
     console.error('Error fetching user profile:', error);
     res.status(500).json({ error: 'Failed to fetch user profile' });
