@@ -1,3 +1,4 @@
+const GenderOptions = require('../enums/GenderOptions');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -16,6 +17,7 @@ const userSchema = new mongoose.Schema({
   about: {type: String},
   tagLine: {type: String},
   currentStatus: {type: String},
+  gender: {type: String, enum: GenderOptions, required: true},
   
   currentIndustry: {type: String},
   skill: [{type: mongoose.Schema.Types.ObjectId, ref: 'SkillSchema'}],
