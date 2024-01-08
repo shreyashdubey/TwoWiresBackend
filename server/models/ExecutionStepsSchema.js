@@ -4,7 +4,6 @@ const executionStepsSchema = new mongoose.Schema(
   {
     stepNumber: {type: Number, required: true},
     stepName: { type: String, required: true },
-    stepCreator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     stepDescription: {type: String},
     creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     contest: { type: mongoose.Schema.Types.ObjectId, ref: 'ContestSchema', required: true },
