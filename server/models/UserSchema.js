@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
   about: {type: String},
   tagLine: {type: String},
   currentStatus: {type: String},
-  gender: {type: String, enum: GenderOptions, required: true},
+  gender: {type: String, enum: GenderOptions},
   
   currentIndustry: {type: String},
   skill: [{type: mongoose.Schema.Types.ObjectId, ref: 'SkillSchema'}],
