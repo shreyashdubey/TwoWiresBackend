@@ -6,6 +6,8 @@ const mongoose = require('mongoose')
 const User = require('../models/UserSchema');
 const Plan = require('../models/PlanSchema')
 const Contest = require('../models/ContestSchema');
+const NotificationTypes = require('../enums/NotificationTypes');
+const Notification = require('../models/NotificationSchema');
 
 // POST route to create a plan for a given contest
 router.post('/plan', async (req, res) => {
@@ -38,6 +40,51 @@ router.post('/plan', async (req, res) => {
         console.error('Error creating plan:', error.message);
         res.status(500).json({ error: 'Internal Server Error' });
     }
+});
+
+router.put('/plan', async (req, res) => {
+  try {
+
+    const { planId, planName, planCreator, planDescription, isSubmitted } = req.body;
+
+    const existingPlan = await Plan.findById(planId);
+
+    if (!existingPlan) {
+      return res.status(404).json({ error: `Plan with ID ${planId} not found` });
+    }
+
+    if (isSubmitted) {
+      if (existingPlan.isSubmitted) {
+        return res.status(400).json({ error: 'Plan already submitted' });
+      } else if(existingPlan.executionSteps.length > 0){
+        return res.status(400).json({ error: 'No Execution steps found' });
+      }
+      else {
+        existingPlan.isSubmitted = true;
+
+        const notification = new Notification({
+          user: planCreator,
+          notificationType: NotificationTypes.PLAN_SUBMITTED_FOR_REVIEW,
+          sourceId: existingPlan,
+          isRead: false,
+          isDeleted: false,
+        });
+
+        await notification.save();
+      }
+    }
+
+    // Update the plan fields
+    existingPlan.planName = planName || existingPlan.planName;
+    existingPlan.planDescription = planDescription || existingPlan.planDescription;
+
+    // Save the updated plan
+    const updatedPlan = await existingPlan.save();
+
+    res.status(200).json({ success: true, message: 'Plan updated successfully', plan: updatedPlan });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 router.get('/plan', async (req, res) => {
@@ -73,6 +120,22 @@ router.get('/plan', async (req, res) => {
         pageSize: pageOptions.pageSize,
         totalPages,
       });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  router.delete('/plan', async (req, res) => {
+    try {
+      const { planId } = req.query;
+      const existingPlan = await Plan.findById(planId);
+      if (!existingPlan) {
+        return res.status(404).json({ error: `Plan with ID ${planId} not found` });
+      }
+      existingPlan.isDeleted = true;
+      await existingPlan.save();
+  
+      res.status(200).json({ success: true, message: 'Plan deleted successfully' });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
