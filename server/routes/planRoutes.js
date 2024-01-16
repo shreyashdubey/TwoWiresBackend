@@ -63,7 +63,7 @@ router.put('/plan', async (req, res) => {
         existingPlan.isSubmitted = true;
 
         const notification = new Notification({
-          user: planCreator,
+          user: existingPlan.planCreator,
           notificationType: NotificationTypes.PLAN_SUBMITTED_FOR_REVIEW,
           sourceId: existingPlan,
           isRead: false,

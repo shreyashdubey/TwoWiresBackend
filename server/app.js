@@ -27,6 +27,7 @@ const contestDescriptionRoutes = require('../server/routes/contestDescriptionRou
 const contestSubmissionRoutes = require('../server/routes/submissionRoutes')
 const notificationRoutes = require('../server/routes/notificationRoutes')
 const planRoutes = require('../server/routes/planRoutes')
+const executionRoutes = require('../server/routes/executionStepsRoutes')
 const friend = require('./models/FriendSchema')
 const app = express();
 const server = http.createServer(app);
@@ -109,6 +110,7 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' })); // <- Parses UR
   app.use('/api/contest-description', contestDescriptionRoutes)
   app.use('/api/contest-submission', contestSubmissionRoutes)
   app.use('/api/contest-plan', planRoutes)
+  app.use('/api/contest-plan-execution', executionRoutes)
 
 
 app.use(errorController); // <- Error Handling Middleware
