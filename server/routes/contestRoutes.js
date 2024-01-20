@@ -22,7 +22,7 @@ router.post('/create-contest', async (req, res) => {
 
     const newContest = new Contest({
       contestName,
-      contestOrganizer,
+      contestOrganizer: contestOrganizer,
       contestCreator,
       startTime,
       endTime
@@ -82,7 +82,7 @@ router.post('/add-contest-creator/:contestId', async (req, res) => {
 // Edit contest route
 router.put('/edit-contest/:contestId', async (req, res) => {
   try {
-    const { contestName, contestCreator, startTime, endTime, isPublished, prize, isSubmitted } = req.body;
+    const { contestName, contestCreator, contestOrganizer, startTime, endTime, isPublished, prize, isSubmitted } = req.body;
     const { contestId } = req.params;
 
     // Check if the contest with the provided ID exists
