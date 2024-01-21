@@ -27,6 +27,7 @@ const contestDescriptionRoutes = require('../server/routes/contestDescriptionRou
 const contestSubmissionRoutes = require('../server/routes/submissionRoutes')
 const notificationRoutes = require('../server/routes/notificationRoutes')
 const planRoutes = require('../server/routes/planRoutes')
+const emailSubRoutes = require('../server/routes/emailSubRoutes')
 const executionRoutes = require('../server/routes/executionStepsRoutes')
 const discussRoutes = require('../server/routes/discussItemRoutes')
 const friend = require('./models/FriendSchema')
@@ -111,6 +112,7 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' })); // <- Parses UR
   app.use('/api/contest-description', contestDescriptionRoutes)
   app.use('/api/contest-submission', contestSubmissionRoutes)
   app.use('/api/contest-plan', planRoutes)
+  app.use('/api/landing-page',emailSubRoutes)
   app.use('/api/contest-plan-execution', executionRoutes)
   app.use('/api/discuss-item',discussRoutes)
 
