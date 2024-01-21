@@ -113,7 +113,6 @@ router.post('/login',
   ],
   async (req, res , next) => {
     try {
-      console.log("gg")
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.log("validationResult Error")

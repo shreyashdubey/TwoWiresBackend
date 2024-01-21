@@ -5,6 +5,7 @@ const contestSchema = new mongoose.Schema(
     contestName: { type: String, required: true },
     contestOrganizer: { type: String },
     contestCreator: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }],
+    plans: [{type: mongoose.Schema.Types.ObjectId, ref: 'PlanSchema'}],
     contestDescription: { type: mongoose.Schema.Types.ObjectId, ref: 'ContestDescriptionSchema' },
     totalTeamsRegistered: { type: Number, default: 0 },
     isDeleted: { type: Boolean, default: false },
