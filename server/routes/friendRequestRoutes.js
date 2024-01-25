@@ -5,7 +5,6 @@ const User = require('../models/UserSchema');
 const FriendRequest = require('../models/FriendRequestSchema');
 const FriendRequestStatus = require('../enums/FriendRequestStatus');
 const Friend = require('../models/FriendSchema')
-const {verifyToken} = require('../utils/verifyToken')
 
 async function areUsersFriends(sender, receiver) {
   const thirtyDaysAgo = new Date(); 
